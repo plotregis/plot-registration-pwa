@@ -16,50 +16,49 @@
   <style>
     :root{color-scheme:light;--navy:#17324d;--teal:#0f766e;--bg:#f3f6f9;--muted:#617487;--line:#dce4eb}
     *{box-sizing:border-box}
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Arial,Helvetica,sans-serif}
-    #appFrame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff}
-    #loading{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px;text-align:center;transition:opacity .25s}
-    #loading.hidden{opacity:0;pointer-events:none}
-    .panel{width:min(440px,100%);background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px 24px;box-shadow:0 12px 40px #17324d12}
-    .logo{width:68px;height:68px;display:block;margin:0 auto 14px}
-    h1{font-size:20px;color:var(--navy);margin:0 0 7px}
-    p{font-size:13px;line-height:1.55;color:var(--muted);margin:7px 0}
-    .spinner{width:28px;height:28px;border:3px solid #dce8ed;border-top-color:var(--teal);border-radius:50%;margin:18px auto 0;animation:spin .8s linear infinite}
+    html,body{margin:0;min-height:100%;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:#203040}
+    .wrap{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .panel{width:min(460px,100%);background:#fff;border:1px solid var(--line);border-radius:18px;padding:30px 26px;text-align:center;box-shadow:0 12px 40px #17324d12}
+    .logo{width:76px;height:76px;display:block;margin:0 auto 16px}
+    h1{font-size:21px;color:var(--navy);margin:0 0 8px}
+    p{font-size:13px;line-height:1.55;color:var(--muted);margin:8px 0}
+    .status{margin:18px 0 10px;padding:10px 12px;border-radius:9px;background:#e8f4f1;color:#176457;font-size:12px;line-height:1.45}
+    .spinner{width:28px;height:28px;border:3px solid #dce8ed;border-top-color:var(--teal);border-radius:50%;margin:17px auto;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    #setupError{display:none}#setupError.show{display:block}
-    .btn{display:inline-block;border:0;border-radius:9px;padding:11px 16px;background:var(--teal);color:white;text-decoration:none;font-weight:700;font-size:13px;margin-top:12px}
-    #installButton{display:none;position:fixed;z-index:7;top:max(12px,env(safe-area-inset-top));right:12px;border:0;border-radius:22px;background:var(--teal);color:white;padding:10px 14px;font-weight:700;box-shadow:0 3px 12px #0002}
+    .btn{display:inline-block;border:0;border-radius:9px;padding:12px 17px;background:var(--teal);color:#fff;text-decoration:none;font-weight:700;font-size:13px;margin-top:12px;cursor:pointer}
+    .btn.secondary{background:#eaf0f4;color:var(--navy);border:1px solid #d6e1e8}
+    #setupError{display:none;margin-top:14px}
+    #setupError.show{display:block}
+    .small{font-size:11px;color:#778999}
+    #installButton{display:none;position:fixed;z-index:7;top:max(12px,env(safe-area-inset-top));right:12px;border:0;border-radius:22px;background:var(--teal);color:#fff;padding:10px 14px;font-weight:700;box-shadow:0 3px 12px #0002}
     #installHelp{display:none;position:fixed;z-index:8;inset:0;background:#10283dcc;align-items:center;justify-content:center;padding:22px}
     #installHelp .panel{max-width:400px;text-align:left}
-    #installHelp button{margin-top:12px}
-    .small-note{font-size:11px;color:#7a8b99}
-    @media (display-mode:standalone){#installButton{display:none!important}}
+    @media(display-mode:standalone){#installButton{display:none!important}}
   </style>
   <script src="./config.js"></script>
 </head>
 <body>
-  <iframe id="appFrame" title="Plot Registration Support application" allow="clipboard-read; clipboard-write; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-
-  <div id="loading" role="status" aria-live="polite">
-    <div class="panel">
+  <main class="wrap">
+    <section class="panel" aria-live="polite">
       <img class="logo" src="./icons/icon-192.png" alt="Plot Registration Support">
       <h1>Plot Registration Support</h1>
-      <p id="loadingMessage">Connecting securely to your registration system…</p>
-      <div class="spinner" id="spinner"></div>
+      <p>Secure registration workspace</p>
+      <div id="status" class="status">Preparing the application launcher.</div>
+      <div id="spinner" class="spinner" aria-hidden="true"></div>
       <div id="setupError">
-        <p><strong>Setup is required.</strong> Add your deployed Google Apps Script web app URL ending in <code>/exec</code> to <code>config.js</code>, then publish the PWA site again.</p>
+        <p id="errorText">The Apps Script URL is not configured.</p>
       </div>
-      <p class="small-note">The installed app requires an internet connection for login, records and file uploads.</p>
-    </div>
-  </div>
+      <a id="openDirect" class="btn" href="#" style="display:none">Open Plot Registration Support</a>
+      <p class="small">The secure Google Apps Script page opens directly rather than inside an embedded frame. This keeps Google sign-in and the login service in their normal browser context. Internet access is required.</p>
+    </section>
+  </main>
 
   <button id="installButton" type="button">Install app</button>
   <div id="installHelp">
     <div class="panel">
-      <h1>Install Plot Registration Support</h1>
-      <p>In Chrome, open the three-dot menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>, then confirm installation.</p>
-      <p>If the app does not open inside the installed window, test the Apps Script URL directly in Chrome first and complete any Google authorization.</p>
-      <button class="btn" id="closeInstallHelp" type="button">Close</button>
+      <h1>Install PlotReg</h1>
+      <p>In Chrome, open the three-dot menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>
+      <button class="btn secondary" id="closeInstallHelp" type="button">Close</button>
     </div>
   </div>
 
@@ -67,43 +66,53 @@
   (function(){
     'use strict';
     var appUrl=String(window.PLOT_REGISTRATION_APP_URL||'').trim();
-    var frame=document.getElementById('appFrame');
-    var loading=document.getElementById('loading');
-    var message=document.getElementById('loadingMessage');
+    var status=document.getElementById('status');
     var spinner=document.getElementById('spinner');
     var setupError=document.getElementById('setupError');
+    var errorText=document.getElementById('errorText');
+    var openDirect=document.getElementById('openDirect');
     var installEvent=null;
-    var timeoutId=null;
+    var standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
 
-    function isExecUrl(value){
+    function validExecUrl(value){
       try{
         var u=new URL(value);
-        return u.protocol==='https:' && u.hostname==='script.google.com' && /^\/(?:a\/)?macros\/(?:[^/]+\/)?s\/[^/]+\/exec$/.test(u.pathname);
+        return u.protocol==='https:' && /(^|\.)script\.google\.com$/.test(u.hostname) && /^\/(?:a\/)?macros\/s\/[^/]+\/exec\/?$/.test(u.pathname);
       }catch(e){return false;}
     }
-    function showLoadError(text){
-      message.textContent=text;
+    function showError(message){
       spinner.style.display='none';
-      setupError.classList.add('show');
-      if(!setupError.querySelector('[data-direct-link]') && isExecUrl(appUrl)){
-        var link=document.createElement('a');
-        link.className='btn';link.href=appUrl;link.target='_blank';link.rel='noopener';
-        link.textContent='Open application directly';link.setAttribute('data-direct-link','1');
-        setupError.appendChild(link);
+      status.textContent=message;
+      errorText.textContent='Check config.js. It must contain the deployed Apps Script URL ending in /exec.';
+      setupError.style.display='block';
+    }
+    function launchApp(){
+      if(!validExecUrl(appUrl) || appUrl.indexOf('PASTE_YOUR_')!==-1){
+        showError('The Apps Script URL is missing or invalid.');
+        return;
       }
+      status.textContent='Opening the secure Google Apps Script application…';
+      spinner.style.display='block';
+      // Top-level navigation removes the nested cross-origin iframe that was
+      // causing the secure login request to hang in the GitHub Pages wrapper.
+      window.location.assign(appUrl);
     }
 
-    if(!isExecUrl(appUrl) || appUrl.indexOf('PASTE_YOUR_')!==-1){
-      showLoadError('The PWA shell is ready, but the Apps Script URL has not been configured.');
+    if(!validExecUrl(appUrl) || appUrl.indexOf('PASTE_YOUR_')!==-1){
+      showError('The application URL has not been configured.');
     }else{
-      timeoutId=window.setTimeout(function(){
-        showLoadError('The secure application has not finished loading. Check your connection or open it directly.');
-      },25000);
-      frame.addEventListener('load',function(){
-        if(timeoutId)window.clearTimeout(timeoutId);
-        window.setTimeout(function(){loading.classList.add('hidden');},300);
-      });
-      frame.src=appUrl;
+      openDirect.href=appUrl;
+      openDirect.addEventListener('click',function(event){event.preventDefault();launchApp();});
+      openDirect.style.display='inline-block';
+      spinner.style.display='none';
+      if(standalone){
+        status.textContent='Installed app detected. Opening your secure registration workspace…';
+        // Ensure the PWA shell worker is ready before leaving its origin.
+        var ready=navigator.serviceWorker ? navigator.serviceWorker.ready.catch(function(){return null;}) : Promise.resolve(null);
+        ready.then(function(){setTimeout(launchApp,250);});
+      }else{
+        status.textContent='Ready. Select Open Plot Registration Support to sign in securely. You can install this launcher from Chrome’s menu.';
+      }
     }
 
     window.addEventListener('beforeinstallprompt',function(event){
@@ -112,16 +121,14 @@
     });
     document.getElementById('installButton').addEventListener('click',async function(){
       if(!installEvent){document.getElementById('installHelp').style.display='flex';return;}
-      installEvent.prompt();
-      await installEvent.userChoice;
-      installEvent=null;this.style.display='none';
+      installEvent.prompt();await installEvent.userChoice;installEvent=null;this.style.display='none';
     });
     document.getElementById('closeInstallHelp').addEventListener('click',function(){document.getElementById('installHelp').style.display='none';});
     window.addEventListener('appinstalled',function(){document.getElementById('installButton').style.display='none';});
 
     if('serviceWorker' in navigator && location.protocol==='https:'){
       window.addEventListener('load',function(){
-        navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(err){console.warn('PWA service worker registration failed:',err);});
+        navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(err){console.warn('PWA shell service worker registration failed:',err);});
       });
     }
   })();
