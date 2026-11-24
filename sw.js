@@ -1,50 +1,36 @@
-/* PlotReg PWA shell service worker V22.
- * Caches only the public launcher shell. Never cache the Apps Script application,
- * credentials, registration data, payment details or uploaded documents.
- */
 'use strict';
-const CACHE_NAME = 'plot-registration-shell-v22';
-const SHELL_ASSETS = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './config.js',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-maskable-512.png'
+const CACHE_NAME = 'plotreg-shell-v23';
+const SHELL = [
+  './', './index.html', './manifest.webmanifest', './config.js', './api-client.js',
+  './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'
 ];
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_ASSETS)));
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)));
   self.skipWaiting();
 });
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(
-    keys.filter(key => key.startsWith('plot-registration-shell-') && key !== CACHE_NAME).map(key => caches.delete(key))
-  )).then(() => self.clients.claim()));
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('plotreg-shell-') && k !== CACHE_NAME).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', event => {
-  const request = event.request;
-  const url = new URL(request.url);
-  if (url.origin !== self.location.origin || request.method !== 'GET') return;
+  const req = event.request;
+  const url = new URL(req.url);
+  // Never intercept API form submissions, Google Drive, Google identity, or cross-origin requests.
+  if (req.method !== 'GET' || url.origin !== self.location.origin) return;
+  // Keep the Apps Script /exec endpoint setting fresh after a deployment URL change.
   if (url.pathname.endsWith('/config.js')) {
-    event.respondWith(fetch(request, {cache:'no-store'}).catch(() => caches.match(request)));
-    return;
-  }
-  if (request.mode === 'navigate') {
-    event.respondWith(fetch(request, {cache:'no-store'}).then(response => {
-      if (response && response.ok) {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
-      }
+    event.respondWith(fetch(req).then(response => {
+      if (response && response.ok) caches.open(CACHE_NAME).then(cache => cache.put(req, response.clone()));
       return response;
-    }).catch(() => caches.match('./index.html')));
+    }).catch(() => caches.match(req)));
     return;
   }
-  event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => {
-    if (response && response.ok) {
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-    }
-    return response;
-  })));
+  if (url.pathname.endsWith('/config.js')) {
+    event.respondWith(fetch(req).then(res => { if (res.ok) caches.open(CACHE_NAME).then(c => c.put(req, res.clone())); return res; }).catch(() => caches.match(req)));
+    return;
+  }
+  if (req.mode === 'navigate') {
+    event.respondWith(fetch(req).then(res => { if (res.ok) caches.open(CACHE_NAME).then(c => c.put('./index.html', res.clone())); return res; }).catch(() => caches.match('./index.html')));
+    return;
+  }
+  event.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => { if (res.ok) caches.open(CACHE_NAME).then(c => c.put(req, res.clone())); return res; })));
 });
