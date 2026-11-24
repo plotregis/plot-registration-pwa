@@ -1,137 +1,1569 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#17324d">
   <meta name="description" content="Secure plot registration, buyer, payment and document management.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PlotReg">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
-  <title>Plot Registration Support</title>
   <style>
-    :root{color-scheme:light;--navy:#17324d;--teal:#0f766e;--bg:#f3f6f9;--muted:#617487;--line:#dce4eb}
-    *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:#203040}
-    .wrap{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
-    .panel{width:min(460px,100%);background:#fff;border:1px solid var(--line);border-radius:18px;padding:30px 26px;text-align:center;box-shadow:0 12px 40px #17324d12}
-    .logo{width:76px;height:76px;display:block;margin:0 auto 16px}
-    h1{font-size:21px;color:var(--navy);margin:0 0 8px}
-    p{font-size:13px;line-height:1.55;color:var(--muted);margin:8px 0}
-    .status{margin:18px 0 10px;padding:10px 12px;border-radius:9px;background:#e8f4f1;color:#176457;font-size:12px;line-height:1.45}
-    .spinner{width:28px;height:28px;border:3px solid #dce8ed;border-top-color:var(--teal);border-radius:50%;margin:17px auto;animation:spin .8s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .btn{display:inline-block;border:0;border-radius:9px;padding:12px 17px;background:var(--teal);color:#fff;text-decoration:none;font-weight:700;font-size:13px;margin-top:12px;cursor:pointer}
-    .btn.secondary{background:#eaf0f4;color:var(--navy);border:1px solid #d6e1e8}
-    #setupError{display:none;margin-top:14px}
-    #setupError.show{display:block}
-    .small{font-size:11px;color:#778999}
-    #installButton{display:none;position:fixed;z-index:7;top:max(12px,env(safe-area-inset-top));right:12px;border:0;border-radius:22px;background:var(--teal);color:#fff;padding:10px 14px;font-weight:700;box-shadow:0 3px 12px #0002}
-    #installHelp{display:none;position:fixed;z-index:8;inset:0;background:#10283dcc;align-items:center;justify-content:center;padding:22px}
-    #installHelp .panel{max-width:400px;text-align:left}
-    @media(display-mode:standalone){#installButton{display:none!important}}
+    :root{--navy:#17324d;--blue:#1f5a85;--teal:#0f766e;--bg:#f3f6f9;--line:#dce4eb;--text:#203040;--muted:#66788a;--white:#fff;--green:#dcfce7;--amber:#fff1cc;--red:#fee2e2}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text);font-size:14px}
+    .hidden{display:none!important}.topbar{background:var(--navy);color:#fff;padding:15px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 8px #10283d22}
+    .brand{font-size:18px;font-weight:700;letter-spacing:.2px}.subbrand{font-size:11px;color:#c9d9e6;margin-top:3px}.top-actions{display:flex;align-items:center;gap:10px}.user-chip{font-size:12px;background:#ffffff18;border:1px solid #ffffff30;padding:7px 10px;border-radius:18px}
+    .wrap{max-width:1400px;margin:22px auto;padding:0 18px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 2px 8px #172f4510}.login-wrap{max-width:440px;margin:8vh auto;padding:28px}.login-title{font-size:23px;color:var(--navy);font-weight:700;margin-bottom:5px}.muted{color:var(--muted)}.tiny{font-size:11px}.label{display:block;font-size:12px;font-weight:700;color:#506275;margin:0 0 6px}.field{width:100%;height:38px;padding:8px 10px;border:1px solid #cbd6df;border-radius:7px;background:#fff;color:var(--text);font:inherit}.field:focus{outline:2px solid #0f766e33;border-color:var(--teal)}textarea.field{height:76px;resize:vertical}.form-group{margin-bottom:14px}.btn{border:0;border-radius:7px;padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer;background:var(--blue);color:#fff}.btn:hover{filter:brightness(.96)}.btn.secondary{background:#e9eff4;color:var(--navy);border:1px solid #d8e1e9}.btn.teal{background:var(--teal)}.btn.danger{background:#b93838}.btn.small{padding:6px 9px;font-size:11px}.btn:disabled{opacity:.55;cursor:not-allowed}.statusline{font-size:12px;padding:9px 11px;border-radius:7px;background:#edf3f8;color:#536b7e;margin:12px 0}.statusline.ok{background:#e2f4e9;color:#17603c}.statusline.error{background:#fde8e8;color:#9c2929}.test-note{margin-top:14px;padding:10px;border-radius:8px;background:#fff4d9;color:#765414;font-size:12px;line-height:1.5;border:1px solid #f1dfaa}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.toolbar h1{margin:0;color:var(--navy);font-size:22px}.toolbar .muted{margin-top:4px;font-size:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.kpi{padding:14px 16px}.kpi-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase}.kpi-value{font-size:25px;font-weight:700;color:var(--navy);margin-top:6px}.filters{padding:14px;margin-bottom:14px;display:grid;grid-template-columns:2fr 1fr auto;gap:12px;align-items:end}.dashboard-tabs{display:flex;gap:7px;overflow-x:auto;padding:10px 12px;margin-bottom:12px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 8px #172f4510}.dashboard-tab{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;padding:8px 12px;border:1px solid #d7e1e9;border-radius:8px;background:#f7f9fb;color:#40576b;font-size:12px;font-weight:700;cursor:pointer}.dashboard-tab:hover{border-color:#8aa9bd;background:#eef5f8}.dashboard-tab.active{background:var(--navy);border-color:var(--navy);color:#fff}.dashboard-tab-count{display:inline-flex;min-width:21px;height:20px;align-items:center;justify-content:center;border-radius:12px;padding:0 6px;background:#e4ebf1;color:#41596e;font-size:10px}.dashboard-tab.active .dashboard-tab-count{background:#ffffff26;color:#fff}.table-card{overflow:hidden}.table-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.table-scroll{overflow:auto}table{width:100%;border-collapse:collapse;min-width:980px}th{background:#edf3f6;color:#42596c;font-size:11px;text-transform:uppercase;letter-spacing:.35px;text-align:left;padding:11px 10px;white-space:nowrap}.sortable{cursor:pointer;user-select:none}.sortable:hover{background:#e1ebf0;color:#17324d}.sort-indicator{display:inline-block;margin-left:4px;color:#0f766e;font-size:12px}td{padding:11px 10px;border-top:1px solid #e8edf1;font-size:12px;vertical-align:middle}tbody tr:hover{background:#f8fbfd}.pill{display:inline-block;border-radius:20px;padding:5px 8px;font-size:10px;font-weight:700;background:#edf2f7;color:#526578;white-space:nowrap}.pill.good{background:var(--green);color:#17603c}.pill.warn{background:var(--amber);color:#8a5a00}.pill.bad{background:var(--red);color:#a32d2d}.empty{padding:28px;text-align:center;color:var(--muted)}
+    .overlay{position:relative;inset:auto;background:transparent;z-index:auto;display:block;padding:0;overflow:visible;min-height:100vh}.editor{width:100%;max-width:1400px;min-height:100vh;margin:0 auto;background:#fff;border-radius:0;box-shadow:none;overflow:visible}.editor-head{background:var(--navy);color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2}.editor-body{padding:18px 20px}.section-title{font-weight:700;color:var(--teal);font-size:13px;border-bottom:1px solid #dce9e7;padding:4px 0 8px;margin:18px 0 12px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.grid .span2{grid-column:span 2}.grid .span4{grid-column:span 4}.repeat-row{display:grid;grid-template-columns:1.5fr 1.2fr 1fr 1fr 110px 38px;gap:8px;align-items:end;margin:8px 0;padding:10px;background:#f7f9fb;border:1px solid var(--line);border-radius:8px}.payment-row{display:grid;grid-template-columns:minmax(0,1fr) 38px;gap:10px;align-items:start;margin:8px 0;padding:10px;background:#f7f9fb;border:1px solid var(--line);border-radius:8px}.payment-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.repeat-row .field{height:34px;font-size:12px}.payment-row .field{height:36px;font-size:12px}.payment-row .payment-remarks-wrap{grid-column:1/-1}.payment-row .payment-proof-wrap{grid-column:1/-1;border-top:1px solid #e3eaf0;padding-top:9px}.payment-proof-current{font-size:11px;color:var(--muted);margin:3px 0 7px}.payment-proof-current a{color:#17658a;font-weight:700;text-decoration:none}.payment-proof-versions{margin-top:6px;font-size:11px}.payment-proof-versions summary{cursor:pointer;color:#315b72;font-weight:700}.payment-proof-versions li{margin:4px 0}.payment-proof-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.payment-proof-actions input{max-width:340px;font-size:11px}.loan-detail-field{min-width:0}.payment-row .delete-btn{align-self:center}.mini-label{font-size:10px;color:var(--muted);font-weight:700;display:block;margin:0 0 4px}.delete-btn{background:#fce9e9;border:1px solid #f4caca;color:#a12d2d;border-radius:7px;height:34px;cursor:pointer}
+    .document-list{display:grid;gap:11px;margin-top:12px}.document-group-title{font-size:11px;font-weight:700;letter-spacing:.45px;text-transform:uppercase;color:#607488;margin:10px 0 2px}.patta-group-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.patta-group-heading .btn{text-transform:none;letter-spacing:0;font-size:11px}.document-card{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden}.document-card-head{padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f6f9fb}.document-card-title{font-size:13px;font-weight:700;color:var(--navy)}.document-status{font-size:10px;font-weight:700;border-radius:20px;padding:5px 9px;background:#edf1f5;color:#617386;white-space:nowrap}.document-status.uploaded{background:#dcfce7;color:#17603c}.document-card-body{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;padding:12px 13px}.document-card-body .field{height:38px;font-size:12px}.document-card-body .btn{height:38px;white-space:nowrap}.document-remarks-wrap{grid-column:1/-1}.document-card-body textarea.document-remarks{height:64px;min-height:64px;resize:vertical;line-height:1.4}.document-upload-actions{display:flex;align-items:end;gap:8px}.document-versions{border-top:1px solid #e8edf1;padding:9px 13px 11px}.document-versions-title{font-size:10px;font-weight:700;color:#66788a;text-transform:uppercase;letter-spacing:.35px;margin-bottom:7px}.document-version{display:grid;grid-template-columns:75px minmax(120px,1.6fr) minmax(100px,1fr) minmax(115px,1fr) auto;gap:9px;align-items:center;padding:7px 8px;border-top:1px solid #eef1f4;font-size:11px}.document-version:first-of-type{border-top:0}.version-tag{font-weight:700;color:#245a54}.document-version a{color:#17658a;font-weight:700;text-decoration:none}.document-version a:hover{text-decoration:underline}.document-no-history{font-size:11px;color:var(--muted)}.document-card .upload-error{padding:0 13px 10px;color:#a32d2d;font-size:11px}.editor-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fafcfd;position:sticky;bottom:0}.save-tools{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0}.autosave-toggle{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap}.autosave-toggle input{width:16px;height:16px;accent-color:var(--teal);cursor:pointer}.autosave-toggle-state{font-size:10px;font-weight:700;border-radius:12px;padding:4px 7px;background:#dcfce7;color:#17603c}.autosave-toggle-state.off{background:#fff1cc;color:#8a5a00}.editor-foot #saveStatus{max-width:560px;line-height:1.45}.readiness-meter{display:flex;align-items:center;gap:7px;min-width:88px}.readiness-track{height:7px;width:48px;border-radius:99px;background:#e8edf1;overflow:hidden;flex:0 0 auto}.readiness-fill{height:100%;border-radius:99px;background:#25745f}.readiness-value{font-weight:700;font-size:11px;white-space:nowrap;color:#294b5c}.readiness-value.complete{color:#17603c}.readiness-value.low{color:#9a5b16}.readiness{border-radius:8px;padding:11px;background:#eff7f5;color:#245a54;font-size:12px;line-height:1.6}.admin-panel{padding:15px;margin-top:16px}.admin-form{display:grid;grid-template-columns:1fr 1.4fr 1fr auto;gap:10px;align-items:end}.toast{position:fixed;right:20px;bottom:20px;z-index:50;max-width:420px;padding:12px 15px;border-radius:8px;background:#203040;color:#fff;box-shadow:0 5px 20px #0003;font-size:13px}.toast.error{background:#9e3030}.connection{font-size:11px;color:#d7e5ed;margin-top:3px}
+    @media(max-width:850px){.editor-foot{align-items:flex-start;flex-direction:column}.save-tools{width:100%;align-items:flex-start;flex-direction:column;gap:7px}.editor-foot .actions{width:100%;justify-content:flex-end}.kpis{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr 1fr}.grid{grid-template-columns:repeat(2,1fr)}.repeat-row{grid-template-columns:repeat(2,1fr)}.payment-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.document-card-body{grid-template-columns:1fr auto}.document-upload-actions{grid-column:2}.document-card-body .btn{grid-column:auto}.document-version{grid-template-columns:65px minmax(100px,1.4fr) minmax(90px,1fr) auto}.document-version .version-remarks{display:none}.admin-form{grid-template-columns:1fr 1fr}}
+    @media(max-width:560px){.wrap{padding:0 10px}.topbar{padding:12px}.brand{font-size:15px}.kpis{grid-template-columns:1fr 1fr;gap:8px}.kpi{padding:10px}.kpi-value{font-size:20px}.filters{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.grid .span2,.grid .span4{grid-column:span 1}.editor-body{padding:14px}.overlay{padding:8px}.editor-foot{align-items:flex-start;flex-direction:column}.document-card-body,.admin-form{grid-template-columns:1fr}.payment-row{grid-template-columns:minmax(0,1fr) 34px}.payment-grid{grid-template-columns:1fr}.document-upload-actions{grid-column:1}.document-card-body .btn{grid-column:auto}.document-version{grid-template-columns:58px minmax(0,1fr) auto}.document-version .version-who,.document-version .version-remarks{display:none}.user-chip{display:none}}
+
+    /* V11: five-column document register. Mobile/tablet keeps the same columns with horizontal scrolling. */
+    .document-list{display:block;overflow-x:auto;margin-top:12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+    .document-table{width:100%;min-width:1120px;border-collapse:collapse;table-layout:fixed}
+    .document-table col:nth-child(1){width:21%}.document-table col:nth-child(2){width:23%}.document-table col:nth-child(3){width:11%}.document-table col:nth-child(4){width:27%}.document-table col:nth-child(5){width:18%}
+    .document-table thead th{position:sticky;top:0;z-index:1;background:#eaf1f5;color:#385268;font-size:10px;letter-spacing:.45px;text-transform:uppercase;padding:12px 10px;border-bottom:1px solid #d7e1e8}
+    .document-table td{padding:10px;border-top:1px solid #e8edf1;vertical-align:top;font-size:12px;overflow-wrap:anywhere}
+    .document-table tbody tr.document-row:hover{background:#fbfdfe}
+    .document-group-row th{padding:10px 12px;background:#f3f7f9;color:#526a7c;text-align:left;border-top:1px solid #dce5eb;border-bottom:1px solid #e4ebf0;font-size:11px;text-transform:uppercase;letter-spacing:.45px}
+    .document-group-bar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .document-group-bar .btn{font-size:11px;padding:6px 9px;text-transform:none;letter-spacing:0;white-space:nowrap}
+    .doc-name{font-size:12px;font-weight:700;color:var(--navy);line-height:1.45}
+    .doc-state{display:inline-block;margin-top:5px;font-size:10px;border-radius:20px;padding:4px 7px;background:#edf1f5;color:#617386;white-space:nowrap}
+    .doc-state.uploaded{background:#dcfce7;color:#17603c}
+    .doc-latest{display:flex;flex-direction:column;gap:5px;min-width:0}
+    .doc-latest a{color:#17658a;text-decoration:none;font-weight:700;overflow-wrap:anywhere}
+    .doc-latest a:hover{text-decoration:underline}
+    .doc-meta{font-size:10px;color:var(--muted);line-height:1.4}
+    .doc-log-button{padding:7px 9px;font-size:11px;white-space:nowrap}
+    .document-table textarea.document-remarks{width:100%;height:58px;min-height:58px;padding:7px 8px;font-size:11px;resize:vertical;line-height:1.4}
+    .doc-upload-cell{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+    .doc-upload-cell .btn{white-space:nowrap;font-size:11px;padding:8px 10px}
+    .document-file{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;clip-path:inset(50%)!important}
+    .doc-upload-hint{font-size:10px;color:var(--muted);line-height:1.35}
+    .document-log-row td{padding:0 10px 11px;background:#fbfcfd;border-top:0}
+    .document-log-panel{border:1px solid #e1e9ee;border-radius:8px;overflow:hidden;background:#fff}
+    .document-log-title{padding:8px 10px;background:#f2f6f8;color:#4b6274;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+    .document-log-table{min-width:900px;width:100%;border-collapse:collapse;table-layout:auto}
+    .document-log-table th{position:static;padding:8px;font-size:9px;background:#fafcfd}
+    .document-log-table td{font-size:11px;padding:8px;vertical-align:top}
+    .document-log-table a{color:#17658a;text-decoration:none;font-weight:700}
+    .document-log-empty{padding:12px;color:var(--muted);font-size:11px}
+    .document-log-toggle[aria-expanded="true"]{background:var(--teal);color:#fff}
+    @media(max-width:850px){.document-table{min-width:1080px}.document-table col:nth-child(4){width:27%}}
+
+
+    /* V14: user-selectable dashboard labels/columns. */
+    .column-picker-wrap{position:relative}
+    .dashboard-viewbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line);background:#fbfcfd}
+    .dashboard-view-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.35px;margin-right:3px}
+    .dashboard-view-buttons{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .dashboard-view-button{border:1px solid #d5e0e8;border-radius:8px;padding:8px 12px;background:#fff;color:#435a6d;font-size:12px;font-weight:700;cursor:pointer}
+    .dashboard-view-button:hover{border-color:#8aa9bd;background:#f2f7fa}
+    .dashboard-view-button.active{background:var(--teal);border-color:var(--teal);color:#fff}
+    .dashboard-view-description{font-size:11px;color:var(--muted)}
+    .dashboard-view-button:focus{outline:2px solid #0f766e44;outline-offset:2px}
+    .column-picker-panel{position:absolute;right:0;top:calc(100% + 7px);z-index:20;width:280px;max-height:360px;overflow:auto;padding:12px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px #172f4524}
+    .column-picker-title{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px}
+    .column-picker-actions{display:flex;gap:7px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #e8edf1}
+    .column-picker-actions button{font-size:10px;padding:5px 7px}
+    .column-option{display:flex;align-items:center;gap:8px;padding:6px 3px;font-size:12px;color:#30485b;cursor:pointer}
+    .column-option input{accent-color:var(--teal);width:15px;height:15px;margin:0}
+    .column-picker-hint{font-size:10px;color:var(--muted);margin-top:8px;line-height:1.4}
   </style>
-  <script src="./config.js"></script>
 </head>
 <body>
-  <main class="wrap">
-    <section class="panel" aria-live="polite">
-      <img class="logo" src="./icons/icon-192.png" alt="Plot Registration Support">
-      <h1>Plot Registration Support</h1>
-      <p>Secure registration workspace</p>
-      <div id="status" class="status">Preparing the application launcher.</div>
-      <div id="spinner" class="spinner" aria-hidden="true"></div>
-      <div id="setupError">
-        <p id="errorText">The Apps Script URL is not configured.</p>
-      </div>
-      <a id="openDirect" class="btn" href="#" style="display:none">Open Plot Registration Support</a>
-      <p class="small">The secure Google Apps Script page opens directly rather than inside an embedded frame. This keeps Google sign-in and the login service in their normal browser context. Internet access is required.</p>
-    </section>
-  </main>
-
-  <button id="installButton" type="button">Install app</button>
-  <div id="installHelp">
-    <div class="panel">
-      <h1>Install PlotReg</h1>
-      <p>In Chrome, open the three-dot menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>
-      <button class="btn secondary" id="closeInstallHelp" type="button">Close</button>
+  <div id="loginView" class="wrap">
+    <div class="card login-wrap">
+      <div class="login-title">Plot Registration Support</div>
+      <div class="muted" style="font-size:13px">Internal registration tracking workspace</div>
+      <div id="connectionState" class="statusline">Checking secure registration backend…</div>
+      <form id="loginForm" onsubmit="event.preventDefault();doLogin();">
+        <div class="form-group"><label class="label" for="employeeId">Employee ID</label><input class="field" id="employeeId" autocomplete="username" placeholder="Enter Employee ID" required></div>
+        <div id="passwordGroup" class="form-group"><label class="label" for="password">Password</label><input class="field" id="password" type="password" autocomplete="current-password" placeholder="Enter password"></div>
+        <button id="loginButton" class="btn teal" type="submit" style="width:100%">Login</button>
+      </form>
+      <div class="muted tiny" style="margin-top:12px">Secure employee access · Contact your administrator if you need a password reset.</div>
     </div>
   </div>
 
-  <script>
-  (function(){
-    'use strict';
-    var appUrl=String(window.PLOT_REGISTRATION_APP_URL||'').trim();
-    var status=document.getElementById('status');
-    var spinner=document.getElementById('spinner');
-    var setupError=document.getElementById('setupError');
-    var errorText=document.getElementById('errorText');
-    var openDirect=document.getElementById('openDirect');
-    var installEvent=null;
-    var standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+  <div id="forcePasswordView" class="wrap hidden">
+    <div class="card login-wrap">
+      <div class="login-title">Set Your New Password</div>
+      <div class="muted" style="font-size:13px;margin-bottom:14px">Your administrator issued a temporary password. Set a new password before continuing.</div>
+      <form id="forcePasswordForm" onsubmit="event.preventDefault();completeForcedPasswordChange();">
+        <div class="form-group"><label class="label" for="forcedNewPassword">New Password</label><input class="field" id="forcedNewPassword" type="password" autocomplete="new-password" minlength="10" required></div>
+        <div class="form-group"><label class="label" for="forcedConfirmPassword">Confirm New Password</label><input class="field" id="forcedConfirmPassword" type="password" autocomplete="new-password" minlength="10" required></div>
+        <button id="forcedPasswordButton" class="btn teal" type="submit" style="width:100%">Update Password & Continue</button>
+        <button type="button" class="btn secondary" style="width:100%;margin-top:8px" onclick="cancelForcedPasswordChange()">Cancel and Log Out</button>
+      </form>
+      <div class="muted tiny" style="margin-top:10px">Use at least 10 characters. Avoid reusing another account's password.</div>
+    </div>
+  </div>
 
-    function validExecUrl(value){
-      try{
-        var u=new URL(value);
-        return u.protocol==='https:' && /(^|\.)script\.google\.com$/.test(u.hostname) && /^\/(?:a\/)?macros\/s\/[^/]+\/exec\/?$/.test(u.pathname);
-      }catch(e){return false;}
+  <div id="appView" class="hidden">
+    <div class="topbar">
+      <div><div class="brand">Plot Registration Support</div><div id="topConnection" class="connection">Connected</div></div>
+      <div class="top-actions"><span id="userChip" class="user-chip"></span><button id="changePasswordBtn" class="btn secondary small hidden" onclick="changeMyPassword()">Change Password</button><button class="btn secondary small" onclick="logout()">Logout</button></div>
+    </div>
+    <div class="wrap">
+      <div class="toolbar">
+        <div><h1>Registration Master</h1><div class="muted">All saved registrations in one searchable register</div></div>
+        <div class="actions"><button class="btn secondary" onclick="loadList()">↻ Refresh</button><button id="employeeAdminButton" class="btn secondary hidden" onclick="toggleAdminPanel()">User Management</button><button class="btn teal" onclick="openNew()">+ New Registration</button></div>
+      </div>
+      <div class="kpis">
+        <div class="card kpi"><div class="kpi-label">Total Registrations</div><div class="kpi-value" id="totalCount">0</div></div>
+        <div class="card kpi"><div class="kpi-label">Pending</div><div class="kpi-value" id="pendingCount">0</div></div>
+        <div class="card kpi"><div class="kpi-label">Scheduled / Confirmed</div><div class="kpi-value" id="scheduledCount">0</div></div>
+        <div class="card kpi"><div class="kpi-label">Completed</div><div class="kpi-value" id="completedCount">0</div></div>
+      </div>
+      <div id="dashboardMessage" class="statusline hidden"></div>
+      <div class="card filters">
+        <div><label class="label" for="searchBox">Search Registration ID / Project / Plot / Buyer</label><input id="searchBox" class="field" placeholder="Type to search…" oninput="renderList()"></div>
+        <div><label class="label" for="statusFilter">Status</label><select id="statusFilter" class="field" onchange="renderList()"><option value="">All statuses</option></select></div>
+        <div><label class="label">&nbsp;</label><button class="btn secondary" onclick="clearFilters()">Clear filters</button></div>
+      </div>
+      <div class="dashboard-tabs" id="dashboardTabs" role="tablist" aria-label="Registration status tabs">
+        <button type="button" class="dashboard-tab active" id="tabAll" role="tab" aria-selected="true" onclick="setDashboardTab('All')">All <span class="dashboard-tab-count" id="countAll">0</span></button>
+        <button type="button" class="dashboard-tab" id="tabPending" role="tab" aria-selected="false" onclick="setDashboardTab('Pending')">Pending <span class="dashboard-tab-count" id="countPending">0</span></button>
+        <button type="button" class="dashboard-tab" id="tabScheduled" role="tab" aria-selected="false" onclick="setDashboardTab('Scheduled')">Scheduled / Confirmed <span class="dashboard-tab-count" id="countScheduled">0</span></button>
+        <button type="button" class="dashboard-tab" id="tabCompleted" role="tab" aria-selected="false" onclick="setDashboardTab('Completed')">Completed <span class="dashboard-tab-count" id="countCompleted">0</span></button>
+        <button type="button" class="dashboard-tab" id="tabOnHold" role="tab" aria-selected="false" onclick="setDashboardTab('On Hold')">On Hold <span class="dashboard-tab-count" id="countOnHold">0</span></button>
+        <button type="button" class="dashboard-tab" id="tabCancelled" role="tab" aria-selected="false" onclick="setDashboardTab('Cancelled')">Cancelled <span class="dashboard-tab-count" id="countCancelled">0</span></button>
+      </div>
+      <div class="card table-card">
+        <div class="dashboard-viewbar">
+          <div class="dashboard-view-buttons" role="tablist" aria-label="Dashboard views">
+            <span class="dashboard-view-label">Dashboard View</span>
+            <button type="button" class="dashboard-view-button active" id="viewManagement" role="tab" aria-selected="true" onclick="setDashboardView('management')">Management View</button>
+            <button type="button" class="dashboard-view-button" id="viewFinance" role="tab" aria-selected="false" onclick="setDashboardView('finance')">Finance View</button>
+            <button type="button" class="dashboard-view-button" id="viewDocumentation" role="tab" aria-selected="false" onclick="setDashboardView('documentation')">Documentation View</button>
+          </div>
+          <div class="dashboard-view-description" id="dashboardViewDescription">Overall registration progress, milestones and ownership.</div>
+        </div>
+        <div class="table-head">
+          <strong>All Registrations</strong>
+          <div class="actions" style="align-items:center">
+            <div class="column-picker-wrap" id="columnPickerWrap">
+              <button type="button" id="columnPickerButton" class="btn secondary small" aria-expanded="false" aria-controls="columnPickerPanel" onclick="toggleColumnChooser()" title="Choose which labels appear in All Registrations">Choose dashboard labels ▾</button>
+              <div id="columnPickerPanel" class="column-picker-panel hidden" onclick="event.stopPropagation()">
+                <div class="column-picker-title">Labels shown in All Registrations</div>
+                <div class="column-picker-actions">
+                  <button type="button" class="btn secondary small" onclick="selectAllDashboardColumns()">Select all</button>
+                  <button type="button" class="btn secondary small" onclick="resetDashboardColumns()">Reset this view</button>
+                </div>
+                <div id="dashboardColumnOptions"></div>
+                <div class="column-picker-hint">Your label selection is saved separately for each dashboard view in this browser. The Action column always remains visible.</div>
+              </div>
+            </div>
+            <label class="tiny muted" for="sortSelect">Sort by</label>
+            <select id="sortSelect" class="field" style="width:auto;min-width:155px;height:32px;padding:5px 8px" onchange="changeSort(this.value)"></select>
+            <button type="button" id="sortDirectionButton" class="btn secondary small" onclick="toggleSortDirection()" title="Toggle sort direction">Newest first ↓</button>
+            <span class="muted tiny" id="resultCount">0 records</span>
+          </div>
+        </div>
+        <div class="table-scroll"><table><thead><tr id="recordsHeaderRow"></tr></thead><tbody id="recordsBody"><tr><td colspan="14" class="empty">No records loaded yet.</td></tr></tbody></table></div>
+      </div>
+      <div id="adminPanel" class="card admin-panel hidden">
+        <div class="toolbar" style="margin-bottom:12px"><div><strong>Employee Management</strong><div class="muted tiny">Create and activate/deactivate employee accounts</div></div><button class="btn secondary small" onclick="loadEmployees()">Refresh users</button></div>
+        <div class="admin-form">
+          <div><label class="label">Employee ID</label><input id="newEmployeeId" class="field" placeholder="EMP001" maxlength="80"></div>
+          <div><label class="label">Employee Name</label><input id="newEmployeeName" class="field" placeholder="Employee name"></div>
+          <div><label class="label">Temporary Password</label><input id="newEmployeePassword" class="field" type="password" minlength="10" autocomplete="new-password" placeholder="At least 10 characters"></div>
+          <div><label class="label">Confirm Temporary Password</label><input id="newEmployeePasswordConfirm" class="field" type="password" minlength="10" autocomplete="new-password" placeholder="Confirm password"></div>
+          <button class="btn teal" type="button" onclick="createEmployeeUi()">Create Employee</button>
+        </div>
+        <div id="employeeList" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="editorOverlay" class="overlay hidden">
+    <div class="editor">
+      <div class="editor-head"><div><strong id="editorTitle">New Registration</strong><div id="editorSub" class="tiny" style="color:#d1e0eb;margin-top:3px">Create a registration record</div></div><button class="btn secondary small" type="button" onclick="closeEditor()">← Back to Dashboard</button></div>
+      <div class="editor-body">
+        <form id="registrationForm" onsubmit="event.preventDefault();saveRecord({manual:true});">
+          <div class="statusline ok" id="autoSaveModeMessage" style="margin-top:0">Auto-save is ON — your changes are saved automatically after a short pause. You can also select Save.</div>
+          <div class="section-title">1. Registration & Plot Details</div>
+          <div class="grid">
+            <div><label class="label">Registration ID</label><input id="regId" class="field" readonly placeholder="Generated on first save"></div>
+            <div><label class="label">Project Name *</label><input id="projectName" class="field" required></div>
+            <div><label class="label">Plot Number *</label><input id="plotNumber" class="field" required></div>
+            <div><label class="label">Plot Size (cents)</label><input id="plotSize" class="field" type="number" min="0" step="0.01" oninput="calculatePlotSizeSqFt()" placeholder="Enter cents"></div>
+            <div><label class="label">Plot Size (Sq.ft)</label><input id="plotSizeSqFt" class="field" type="number" readonly tabindex="-1" placeholder="Auto calculated" title="Plot size in cents × 435.6"></div>
+            <div><label class="label">Customer Opting for Loan?</label><select id="loanRequired" class="field" onchange="toggleLoanDetails()"><option value="No">No</option><option value="Yes">Yes</option></select></div>
+            <div id="loanBankNameWrap" class="loan-detail-field hidden"><label class="label">Loan Bank Name</label><input id="loanBankName" class="field" placeholder="Financing bank name"></div>
+            <div id="loanBranchWrap" class="loan-detail-field hidden"><label class="label">Loan Bank Branch</label><input id="loanBranch" class="field" placeholder="Branch name"></div>
+            <div id="loanSanctionedValueWrap" class="loan-detail-field hidden"><label class="label">Loan Sanctioned Value (₹)</label><input id="loanSanctionedValue" class="field" type="number" min="0" step="1" placeholder="Sanctioned loan amount"></div>
+            <div><label class="label">Booking Date</label><input id="bookingDate" class="field" type="date" onchange="recalculateDates()"></div>
+            <div><label class="label">Estimated Registration Date (+45 days)</label><input id="estimatedDate" class="field" type="date" readonly></div>
+            <div><label class="label">Tentative Customer Date</label><input id="tentativeDate" class="field" type="date" onchange="recalculateDates()"></div>
+            <div><label class="label">Registration Deadline (−6 days)</label><input id="deadlineDate" class="field" type="date" readonly></div>
+            <div><label class="label">Confirmed Registration Date</label><input id="confirmedDate" class="field" type="date"></div>
+            <div><label class="label">Registration Value (₹)</label><input id="registrationValue" class="field" type="number" min="0" step="1" oninput="updateFinance()"></div>
+            <div><label class="label">Status</label><select id="status" class="field"></select></div>
+            <div><label class="label">Last Updated</label><input id="lastUpdated" class="field" readonly></div>
+          </div>
+
+          <div class="section-title">2. Buyer Details (multiple buyers supported)</div>
+          <div id="buyersContainer"></div>
+          <button type="button" class="btn secondary small" onclick="addBuyer()">+ Add Buyer</button>
+
+          <div class="section-title">3. Payments & Financial Summary</div>
+          <div class="muted tiny">Record each payment separately. Select a payment mode and enter bank details, branch and transaction reference where applicable.</div>
+          <div id="paymentsContainer"></div>
+          <button type="button" class="btn secondary small" onclick="addPayment()">+ Add Payment</button>
+          <div class="grid" style="margin-top:12px">
+            <div><label class="label">Total Paid (₹)</label><input id="totalPaid" class="field" readonly></div>
+            <div><label class="label">Balance (₹)</label><input id="balance" class="field" readonly></div>
+            <div class="span2"><label class="label">Remarks</label><textarea id="remarks" class="field" placeholder="Enter remarks"></textarea></div>
+          </div>
+
+          <div class="section-title">4. Registration Documents & Patta — list view (version history retained)</div>
+          <div class="muted tiny">All document categories are listed below, including Registered Sale Deed and Registered MOD. Upload a new file against the relevant item; previous versions remain available in that item's history.</div>
+          <div id="uploadHistory" class="document-list"><div class="empty">Save the registration to enable document uploads.</div></div>
+          <div class="section-title">5. Readiness</div>
+          <div id="readinessBox" class="readiness">Complete plot and buyer details, then upload required documents. Readiness is calculated from the saved registration and upload history.</div>
+        </form>
+      </div>
+      <div class="editor-foot"><div class="save-tools"><label class="autosave-toggle" for="autoSaveToggle"><input id="autoSaveToggle" type="checkbox" checked onchange="setAutoSaveEnabled(this.checked)"><span>Enable Auto-save</span><span id="autoSaveToggleState" class="autosave-toggle-state">ON</span></label><div class="muted tiny" id="saveStatus">Auto-save is ON. Changes are saved automatically after a short pause.</div></div><div class="actions"><button class="btn secondary" type="button" onclick="closeEditor()">← Back to Dashboard</button><button id="saveButton" type="button" class="btn teal" onclick="saveRecord({manual:true})">Save</button></div></div>
+    </div>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+
+<script src="./config.js"></script>
+<script src="./api-client.js"></script>
+<script>
+  var appInfo = null;
+  var sessionToken = '';
+  var currentUser = null;
+  var registrationList = [];
+  var activeDashboardTab = 'All';
+  var activeDashboardView = 'management';
+  var dashboardSortKey = 'updatedAt';
+  var dashboardSortDirection = 'desc';
+  var dashboardColumnDefinitions = [
+    {key:'id',label:'Registration ID'},
+    {key:'bookingDate',label:'Booking Date'},
+    {key:'projectName',label:'Project Name'},
+    {key:'plotNumber',label:'Plot Number'},
+    {key:'plotSize',label:'Plot Size (Cents)'},
+    {key:'plotSizeSqFt',label:'Plot Size (Sq.ft)'},
+    {key:'buyer',label:'Buyer Name(s)'},
+    {key:'numberOfBuyers',label:'Number of Buyers'},
+    {key:'registrationValue',label:'Registration Value'},
+    {key:'totalPaid',label:'Total Amount Paid'},
+    {key:'balance',label:'Balance Amount'},
+    {key:'paymentCompletionPercent',label:'Payment Completion %'},
+    {key:'lastPaymentDate',label:'Last Payment Date'},
+    {key:'lastPaymentMode',label:'Last Payment Mode'},
+    {key:'lastBankName',label:'Last Payment Bank'},
+    {key:'lastBankBranch',label:'Last Payment Branch'},
+    {key:'loanRequired',label:'Loan Opted?'},
+    {key:'loanBankName',label:'Loan Bank Name'},
+    {key:'loanBranch',label:'Loan Bank Branch'},
+    {key:'loanSanctionedValue',label:'Loan Sanctioned Value'},
+    {key:'readinessPercent',label:'Readiness %'},
+    {key:'readinessCompleted',label:'Readiness Checks Complete'},
+    {key:'readinessTotal',label:'Total Readiness Checks'},
+    {key:'pendingChecks',label:'Pending Checks'},
+    {key:'missingItems',label:'Missing Items'},
+    {key:'estimatedDate',label:'Estimated Registration Date'},
+    {key:'tentativeDate',label:'Tentative Registration Date'},
+    {key:'confirmedDate',label:'Confirmed Registration Date'},
+    {key:'status',label:'Registration Status'},
+    {key:'updatedAt',label:'Last Updated'},
+    {key:'updatedBy',label:'Updated By'}
+  ];
+  var dashboardViews = {
+    management:{label:'Management View',description:'Overall registration progress, milestones and ownership.',columns:['id','bookingDate','projectName','plotNumber','plotSize','buyer','registrationValue','balance','readinessPercent','tentativeDate','confirmedDate','status','updatedAt']},
+    finance:{label:'Finance View',description:'Registration value, collections, outstanding balance, payment and home-loan details.',columns:['id','projectName','plotNumber','buyer','registrationValue','totalPaid','balance','paymentCompletionPercent','loanRequired','loanBankName','loanBranch','loanSanctionedValue','lastPaymentDate','lastPaymentMode','lastBankName','lastBankBranch']},
+    documentation:{label:'Documentation View',description:'Document readiness, completed checks and outstanding items for each registration.',columns:['id','projectName','plotNumber','buyer','readinessPercent','readinessCompleted','readinessTotal','pendingChecks','missingItems','status','updatedAt']}
+  };
+  var dashboardVisibleColumns = dashboardViews.management.columns.slice();
+  var dashboardColumnStorageKeyPrefix = 'plotRegistrationDashboardColumnsV2_';
+  var legacyDashboardColumnStorageKey = 'plotRegistrationDashboardColumnsV1';
+  var dashboardViewStorageKey = 'plotRegistrationDashboardActiveViewV1';
+  var currentRecordId = '';
+  var currentUploads = [];
+  var autoSaveTimer = null;
+  var autoSaveInProgress = false;
+  var autoSaveQueued = false;
+  var autoSaveHydratingForm = false;
+  var autoSaveCloseAfter = false;
+  var autoSaveLastSavedFingerprint = '';
+  var autoSaveEnabled = true; // Default ON to preserve the previous V16 behaviour.
+  var AUTO_SAVE_DELAY_MS = 1100;
+  var statuses = ['Booking Received','Documentation Pending','Documentation Complete','Registration Scheduled','Registration Confirmed','Registered / Completed','On Hold','Cancelled'];
+  var documentCategories = ['Sale Agreement Draft','Sale Agreement Copy','Sale Deed Draft','Sale Deed Final Draft','MOD Draft','Final MOD Draft','Registered Sale Deed','Registered MOD'];
+  // Additional EC and Patta entries each use their own Document Name and independent version history.
+  var ecItems = ['Certified EC'];
+  var pattaItems = ['Patta'];
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var registrationForm = document.getElementById('registrationForm');
+    if (registrationForm) {
+      registrationForm.addEventListener('input', handleRegistrationFormMutation);
+      registrationForm.addEventListener('change', handleRegistrationFormMutation);
     }
-    function showError(message){
-      spinner.style.display='none';
-      status.textContent=message;
-      errorText.textContent='Check config.js. It must contain the deployed Apps Script URL ending in /exec.';
-      setupError.style.display='block';
-    }
-    function launchApp(){
-      if(!validExecUrl(appUrl) || appUrl.indexOf('PASTE_YOUR_')!==-1){
-        showError('The Apps Script URL is missing or invalid.');
+    initializeDashboardColumns();
+    document.addEventListener('click', function(event){
+      var wrap=document.getElementById('columnPickerWrap');
+      if(wrap && !wrap.contains(event.target)) closeColumnChooser();
+    });
+    google.script.run.withSuccessHandler(function(info){
+      appInfo = info || {};
+      var state = document.getElementById('connectionState');
+      if (!info || !info.ok) { state.className='statusline error'; state.textContent='Could not read application information from the server.'; return; }
+      if (!info.databaseReady) { state.className='statusline error'; state.textContent='Connected to the registration backend, but the existing database is not ready. Contact the application administrator.'; }
+      else { state.className='statusline ok'; state.textContent='Connected to secure registration backend and database · '+(info.backendBuild || 'build version not reported')+'.'; }
+      document.getElementById('passwordGroup').classList.remove('hidden');
+      document.getElementById('password').required = true;
+      document.getElementById('topConnection').textContent = 'Secure login enabled' + (info.backendBuild ? ' · '+info.backendBuild : '');
+      fillStatusOptions();
+    }).withFailureHandler(function(err){
+      var state=document.getElementById('connectionState'); state.className='statusline error'; state.textContent='Backend connection failed: '+errorText(err);
+    }).getAppInfo();
+  });
+
+  function fillStatusOptions(){
+    var select=document.getElementById('status');
+    select.innerHTML=statuses.map(function(s){return '<option>'+escapeHtml(s)+'</option>';}).join('');
+    var filter=document.getElementById('statusFilter');
+    filter.innerHTML='<option value="">All statuses</option>'+statuses.map(function(s){return '<option>'+escapeHtml(s)+'</option>';}).join('');
+  }
+
+  var pendingCurrentPassword = '';
+  var pendingLogin = null;
+
+  function doLogin(){
+    var id=document.getElementById('employeeId').value.trim();
+    var password=document.getElementById('password').value;
+    if(!id || !password){showToast('Enter your Employee ID and password.',true);return;}
+    var button=document.getElementById('loginButton'); button.disabled=true; button.textContent='Signing in…';
+    google.script.run.withSuccessHandler(function(res){
+      button.disabled=false;button.textContent='Login';
+      if(!res || !res.ok){showToast(res && res.message ? res.message : 'Invalid Employee ID or password.',true);return;}
+      sessionToken=res.token;
+      pendingLogin={employeeId:res.employeeId,role:res.role};
+      if(res.mustChangePassword){
+        pendingCurrentPassword=password;
+        document.getElementById('loginView').classList.add('hidden');
+        document.getElementById('forcePasswordView').classList.remove('hidden');
+        document.getElementById('forcedNewPassword').value='';
+        document.getElementById('forcedConfirmPassword').value='';
+        document.getElementById('forcedNewPassword').focus();
         return;
       }
-      status.textContent='Opening the secure Google Apps Script application…';
-      spinner.style.display='block';
-      // Top-level navigation removes the nested cross-origin iframe that was
-      // causing the secure login request to hang in the GitHub Pages wrapper.
-      window.location.assign(appUrl);
-    }
+      enterApplication(res.employeeId,res.role);
+    }).withFailureHandler(function(err){button.disabled=false;button.textContent='Login';showToast('Login error: '+errorText(err),true);}).login(id,password);
+  }
 
-    if(!validExecUrl(appUrl) || appUrl.indexOf('PASTE_YOUR_')!==-1){
-      showError('The application URL has not been configured.');
-    }else{
-      openDirect.href=appUrl;
-      openDirect.addEventListener('click',function(event){event.preventDefault();launchApp();});
-      openDirect.style.display='inline-block';
-      spinner.style.display='none';
-      if(standalone){
-        status.textContent='Installed app detected. Opening your secure registration workspace…';
-        // Ensure the PWA shell worker is ready before leaving its origin.
-        var ready=navigator.serviceWorker ? navigator.serviceWorker.ready.catch(function(){return null;}) : Promise.resolve(null);
-        ready.then(function(){setTimeout(launchApp,250);});
-      }else{
-        status.textContent='Ready. Select Open Plot Registration Support to sign in securely. You can install this launcher from Chrome’s menu.';
+  function enterApplication(employeeId,role){
+    currentUser={employeeId:employeeId,role:role};
+    loadAutoSavePreference();
+    document.getElementById('forcePasswordView').classList.add('hidden');
+    document.getElementById('loginView').classList.add('hidden');
+    document.getElementById('appView').classList.remove('hidden');
+    document.getElementById('userChip').textContent=currentUser.employeeId+' · '+currentUser.role;
+    var isAdmin=currentUser.role==='Admin';
+    document.getElementById('employeeAdminButton').classList.toggle('hidden',!isAdmin);
+    document.getElementById('changePasswordBtn').classList.remove('hidden');
+    document.getElementById('adminPanel').classList.toggle('hidden',!isAdmin);
+    if(!isAdmin) document.getElementById('employeeList').innerHTML='';
+    loadList();
+    if(currentUser.role==='Admin') loadEmployees();
+  }
+
+  function completeForcedPasswordChange(){
+    var next=document.getElementById('forcedNewPassword').value;
+    var confirm=document.getElementById('forcedConfirmPassword').value;
+    if(next.length<10){showToast('New password must contain at least 10 characters.',true);return;}
+    if(next!==confirm){showToast('The new passwords do not match.',true);return;}
+    var button=document.getElementById('forcedPasswordButton');button.disabled=true;button.textContent='Updating…';
+    google.script.run.withSuccessHandler(function(res){
+      button.disabled=false;button.textContent='Update Password & Continue';
+      pendingCurrentPassword='';
+      if(!res || !res.ok){showToast('Password could not be changed. Try again.',true);return;}
+      showToast(res.message||'Password updated.');
+      enterApplication(pendingLogin.employeeId,pendingLogin.role);
+      pendingLogin=null;
+    }).withFailureHandler(function(err){button.disabled=false;button.textContent='Update Password & Continue';showToast('Password change failed: '+errorText(err),true);}).changePassword(sessionToken,pendingCurrentPassword,next);
+  }
+
+  function cancelForcedPasswordChange(){
+    var token=sessionToken;sessionToken='';currentUser=null;pendingLogin=null;pendingCurrentPassword='';
+    google.script.run.withSuccessHandler(function(){}).withFailureHandler(function(){}).logout(token);
+    document.getElementById('forcePasswordView').classList.add('hidden');
+    document.getElementById('loginView').classList.remove('hidden');
+    document.getElementById('password').value='';
+  }
+
+  function logout(){
+    var token=sessionToken; sessionToken=''; currentUser=null;pendingLogin=null;pendingCurrentPassword='';
+    google.script.run.withSuccessHandler(function(){}).withFailureHandler(function(){}).logout(token);
+    document.getElementById('appView').classList.add('hidden');document.getElementById('forcePasswordView').classList.add('hidden');document.getElementById('loginView').classList.remove('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');document.getElementById('employeeList').innerHTML='';
+    document.getElementById('password').value='';document.getElementById('employeeId').value='';
+  }
+
+  function loadList(){
+    setDashboardMessage('Loading registrations…','');
+    google.script.run.withSuccessHandler(function(response){
+      var items = null;
+      if (Array.isArray(response)) {
+        // Backward-compatible support for an older backend that returns an array.
+        items = response;
+      } else if (response && response.ok === true && Array.isArray(response.registrations)) {
+        items = response.registrations;
+      } else if (response && Array.isArray(response.items)) {
+        items = response.items;
+      } else if (response && Array.isArray(response.data)) {
+        items = response.data;
       }
+
+      if (!items) {
+        var shape = response === null ? 'null' : (Array.isArray(response) ? 'array' : typeof response);
+        var detail = response && typeof response === 'object' ? ' Keys: '+Object.keys(response).join(', ') : ' Value: '+String(response);
+        setDashboardMessage('Dashboard response mismatch ('+shape+'). Expected registrations array.'+detail+' Check that both V3 files were deployed together.','error');
+        return;
+      }
+
+      registrationList = items;
+      updateDashboardTabCounts();
+      renderList();
+      var pending = items.filter(function(r){return r.status!=='Registered / Completed' && r.status!=='Cancelled';}).length;
+      var scheduled = items.filter(function(r){return r.status==='Registration Scheduled'||r.status==='Registration Confirmed';}).length;
+      var completed = items.filter(function(r){return r.status==='Registered / Completed';}).length;
+      document.getElementById('totalCount').textContent = items.length;
+      document.getElementById('pendingCount').textContent = pending;
+      document.getElementById('scheduledCount').textContent = scheduled;
+      document.getElementById('completedCount').textContent = completed;
+      var build = response && response.version ? ' · '+response.version : '';
+      setDashboardMessage('Loaded '+items.length+' registration(s)'+build+'.','ok');
+    }).withFailureHandler(function(err){
+      setDashboardMessage('Dashboard error: '+errorText(err)+' Check that Code.gs and Index.html are from the same release, then deploy a new version.','error');
+    }).fetchRegistrationDashboardV3(sessionToken);
+  }
+
+  function initializeDashboardColumns(){
+    try{
+      var rememberedView=window.localStorage.getItem(dashboardViewStorageKey);
+      if(rememberedView && dashboardViews[rememberedView]) activeDashboardView=rememberedView;
+    }catch(e){}
+    loadColumnsForActiveView();
+    renderDashboardViewControls();
+    renderDashboardHeader();
+  }
+
+  function loadColumnsForActiveView(){
+    var defaults=dashboardViews[activeDashboardView].columns.slice();
+    var storageKey=dashboardColumnStorageKeyPrefix+activeDashboardView;
+    var saved=null;
+    try{
+      var raw=window.localStorage.getItem(storageKey);
+      if(raw) saved=JSON.parse(raw);
+      // Migrate the user's V14 selection into the Management View once.
+      if(!raw && activeDashboardView==='management'){
+        var legacy=window.localStorage.getItem(legacyDashboardColumnStorageKey);
+        if(legacy) saved=JSON.parse(legacy);
+      }
+    }catch(e){saved=null;}
+    var allowed=dashboardColumnDefinitions.map(function(c){return c.key;});
+    if(Array.isArray(saved)){
+      dashboardVisibleColumns=saved.filter(function(key,index){return allowed.indexOf(key)!==-1&&saved.indexOf(key)===index;});
+      if(!dashboardVisibleColumns.length) dashboardVisibleColumns=defaults;
+    }else dashboardVisibleColumns=defaults;
+    persistDashboardColumns();
+  }
+
+  function renderDashboardViewControls(){
+    var ids={management:'viewManagement',finance:'viewFinance',documentation:'viewDocumentation'};
+    Object.keys(ids).forEach(function(key){
+      var el=document.getElementById(ids[key]);
+      if(!el)return;
+      var active=key===activeDashboardView;
+      el.classList.toggle('active',active);
+      el.setAttribute('aria-selected',active?'true':'false');
+    });
+    var description=document.getElementById('dashboardViewDescription');
+    if(description)description.textContent=dashboardViews[activeDashboardView].description;
+  }
+
+  function setDashboardView(view){
+    if(!dashboardViews[view] || view===activeDashboardView)return;
+    activeDashboardView=view;
+    closeColumnChooser();
+    try{window.localStorage.setItem(dashboardViewStorageKey,activeDashboardView);}catch(e){}
+    loadColumnsForActiveView();
+    renderDashboardViewControls();
+    renderDashboardColumnOptions();
+    renderDashboardHeader();
+    applyDashboardColumnVisibility();
+    renderList();
+  }
+
+  function renderDashboardHeader(){
+    var row=document.getElementById('recordsHeaderRow');
+    if(!row)return;
+    row.innerHTML=dashboardColumnDefinitions.map(function(column){
+      return '<th data-dashboard-column="'+escapeAttr(column.key)+'" class="sortable" onclick="sortDashboard(\''+jsQuote(column.key)+'\')">'+escapeHtml(column.label)+' <span class="sort-indicator" id="sortIcon-'+escapeAttr(column.key)+'">↕</span></th>';
+    }).join('')+'<th data-dashboard-column="action">Action</th>' ;
+    var sort=document.getElementById('sortSelect');
+    if(sort){
+      sort.innerHTML=dashboardColumnDefinitions.map(function(column){return '<option value="'+escapeAttr(column.key)+'">'+escapeHtml(column.label)+'</option>';}).join('');
+      if(!dashboardColumnDefinitions.some(function(c){return c.key===dashboardSortKey;}))dashboardSortKey='updatedAt';
+      sort.value=dashboardSortKey;
     }
+    applyDashboardColumnVisibility();
+    updateSortControls();
+  }
 
-    window.addEventListener('beforeinstallprompt',function(event){
-      event.preventDefault();installEvent=event;
-      document.getElementById('installButton').style.display='block';
-    });
-    document.getElementById('installButton').addEventListener('click',async function(){
-      if(!installEvent){document.getElementById('installHelp').style.display='flex';return;}
-      installEvent.prompt();await installEvent.userChoice;installEvent=null;this.style.display='none';
-    });
-    document.getElementById('closeInstallHelp').addEventListener('click',function(){document.getElementById('installHelp').style.display='none';});
-    window.addEventListener('appinstalled',function(){document.getElementById('installButton').style.display='none';});
+  function renderDashboardColumnOptions(){
+    var host=document.getElementById('dashboardColumnOptions');
+    if(!host)return;
+    host.innerHTML=dashboardColumnDefinitions.map(function(column){
+      var checked=dashboardVisibleColumns.indexOf(column.key)!==-1?' checked':'';
+      return '<label class="column-option"><input type="checkbox" value="'+escapeAttr(column.key)+'"'+checked+' onchange="setDashboardColumnVisible(this.value,this.checked)"><span>'+escapeHtml(column.label)+'</span></label>';
+    }).join('');
+    updateColumnPickerButton();
+    var title=document.querySelector('#columnPickerPanel .column-picker-title');
+    if(title)title.textContent='Labels shown in '+dashboardViews[activeDashboardView].label;
+  }
 
-    if('serviceWorker' in navigator && location.protocol==='https:'){
-      window.addEventListener('load',function(){
-        navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(err){console.warn('PWA shell service worker registration failed:',err);});
+  function updateColumnPickerButton(){
+    var button=document.getElementById('columnPickerButton');
+    if(button)button.textContent='Choose labels ('+dashboardVisibleColumns.length+'/'+dashboardColumnDefinitions.length+') ▾';
+  }
+
+  function persistDashboardColumns(){
+    try{window.localStorage.setItem(dashboardColumnStorageKeyPrefix+activeDashboardView,JSON.stringify(dashboardVisibleColumns));}catch(e){}
+  }
+
+  function setDashboardColumnVisible(key,visible){
+    var allowed=dashboardColumnDefinitions.map(function(c){return c.key;});
+    if(allowed.indexOf(key)===-1)return;
+    var next=dashboardVisibleColumns.filter(function(item){return item!==key;});
+    if(visible)next.push(key);
+    if(!next.length){
+      showToast('At least one dashboard label must remain visible.',true);
+      renderDashboardColumnOptions();
+      return;
+    }
+    dashboardVisibleColumns=allowed.filter(function(item){return next.indexOf(item)!==-1;});
+    persistDashboardColumns();
+    renderDashboardColumnOptions();
+    renderList();
+  }
+
+  function selectAllDashboardColumns(){
+    dashboardVisibleColumns=dashboardColumnDefinitions.map(function(c){return c.key;});
+    persistDashboardColumns();
+    renderDashboardColumnOptions();
+    renderList();
+  }
+
+  function resetDashboardColumns(){
+    dashboardVisibleColumns=dashboardViews[activeDashboardView].columns.slice();
+    persistDashboardColumns();
+    renderDashboardColumnOptions();
+    renderList();
+    showToast(dashboardViews[activeDashboardView].label+' labels restored to the preset.');
+  }
+
+  function applyDashboardColumnVisibility(){
+    var visible=dashboardVisibleColumns.slice();
+    visible.push('action');
+    document.querySelectorAll('[data-dashboard-column]').forEach(function(cell){
+      var key=cell.getAttribute('data-dashboard-column');
+      cell.style.display=visible.indexOf(key)!==-1?'':'none';
+    });
+  }
+
+  function visibleDashboardColumnCount(){return dashboardVisibleColumns.length+1;}
+
+  function dashboardReadinessCell(record){
+    var value=Number(record.readinessPercent);
+    if(!Number.isFinite(value)) value=0;
+    value=Math.max(0,Math.min(100,Math.round(value)));
+    var cls=value===100?'complete':(value<50?'low':'');
+    var detail=Number(record.readinessCompleted||0)+' of '+Number(record.readinessTotal||0)+' checks complete';
+    return '<div class="readiness-meter" title="'+escapeAttr(detail)+'"><div class="readiness-track"><div class="readiness-fill" style="width:'+value+'%"></div></div><span class="readiness-value '+cls+'">'+value+'%</span></div>';
+  }
+
+  function getDashboardPaymentSummary(record){
+    var payments=Array.isArray(record.payments)?record.payments.slice():[];
+    var total=record.totalPaid!==undefined&&record.totalPaid!==null?Number(record.totalPaid):sumPayments(payments);
+    if(!Number.isFinite(total))total=sumPayments(payments);
+    var value=Number(record.registrationValue||0);
+    var balance=record.balance!==undefined&&record.balance!==null?Number(record.balance):value-total;
+    payments.sort(function(a,b){return (Date.parse(a.date||'')||0)-(Date.parse(b.date||'')||0);});
+    var latest=payments.length?payments[payments.length-1]:{};
+    var completion=value>0?Math.max(0,Math.min(100,(total/value)*100)):0;
+    return {total:total,balance:balance,completion:completion,latest:latest};
+  }
+
+  function dashboardCellHtml(record,key){
+    var buyers=(record.buyers||[]).map(function(b){return b.name||'';}).filter(Boolean);
+    var finance=getDashboardPaymentSummary(record);
+    var missing=Array.isArray(record.readinessMissing)?record.readinessMissing:[];
+    switch(key){
+      case 'id': return '<strong>'+escapeHtml(record.id||'')+'</strong>';
+      case 'bookingDate': return escapeHtml(formatDate(record.bookingDate));
+      case 'projectName': return escapeHtml(record.projectName||'');
+      case 'plotNumber': return escapeHtml(record.plotNumber||'');
+      case 'plotSize': return escapeHtml(formatArea(record.plotSize||0));
+      case 'plotSizeSqFt': return escapeHtml(formatArea(record.plotSizeSqFt!==undefined&&record.plotSizeSqFt!==null?record.plotSizeSqFt:calculateSqFt(record.plotSize||0)));
+      case 'buyer': return escapeHtml(buyers.join(', ')||'—');
+      case 'numberOfBuyers': return String(buyers.length);
+      case 'registrationValue': return money(record.registrationValue);
+      case 'totalPaid': return money(finance.total);
+      case 'balance': return money(finance.balance);
+      case 'paymentCompletionPercent': return Math.round(finance.completion)+'%';
+      case 'lastPaymentDate': return escapeHtml(formatDate(finance.latest.date));
+      case 'lastPaymentMode': return escapeHtml(finance.latest.mode||'—');
+      case 'lastBankName': return escapeHtml(finance.latest.bankName||'—');
+      case 'lastBankBranch': return escapeHtml(finance.latest.branch||'—');
+      case 'loanRequired': return record.loanRequired==='Yes'?'<span class="pill good">Yes</span>':'No';
+      case 'loanBankName': return escapeHtml(record.loanBankName||'—');
+      case 'loanBranch': return escapeHtml(record.loanBranch||'—');
+      case 'loanSanctionedValue': return money(record.loanSanctionedValue||0);
+      case 'readinessPercent': return dashboardReadinessCell(record);
+      case 'readinessCompleted': return String(Number(record.readinessCompleted||0));
+      case 'readinessTotal': return String(Number(record.readinessTotal||0));
+      case 'pendingChecks': return String(missing.length);
+      case 'missingItems': return missing.length?'<span title="'+escapeAttr(missing.join(' · '))+'">'+escapeHtml(missing.slice(0,3).join(' · '))+(missing.length>3?' …':'')+'</span>':'<span class="pill good">None</span>' ;
+      case 'estimatedDate': return escapeHtml(formatDate(record.estimatedDate));
+      case 'tentativeDate': return escapeHtml(formatDate(record.tentativeDate));
+      case 'confirmedDate': return escapeHtml(formatDate(record.confirmedDate));
+      case 'status': return statusPill(record.status);
+      case 'updatedAt': return escapeHtml(formatDateTime(record._updatedAt||record.updatedAt));
+      case 'updatedBy': return escapeHtml(record._updatedBy||record.updatedBy||'—');
+      default: return '';
+    }
+  }
+
+  function toggleColumnChooser(){
+    var panel=document.getElementById('columnPickerPanel');
+    var button=document.getElementById('columnPickerButton');
+    if(!panel)return;
+    var opening=panel.classList.contains('hidden');
+    panel.classList.toggle('hidden',!opening);
+    if(button)button.setAttribute('aria-expanded',opening?'true':'false');
+  }
+
+  function closeColumnChooser(){
+    var panel=document.getElementById('columnPickerPanel');
+    var button=document.getElementById('columnPickerButton');
+    if(panel)panel.classList.add('hidden');
+    if(button)button.setAttribute('aria-expanded','false');
+  }
+
+  function visibleDashboardColumnCount(){return dashboardVisibleColumns.length+1;}
+
+  function dashboardReadinessCell(record){
+    var value=Number(record.readinessPercent);
+    if(!Number.isFinite(value)) value=0;
+    value=Math.max(0,Math.min(100,Math.round(value)));
+    var cls=value===100?'complete':(value<50?'low':'');
+    var detail=Number(record.readinessCompleted||0)+' of '+Number(record.readinessTotal||0)+' checks complete';
+    return '<div class=\"readiness-meter\" title=\"'+escapeAttr(detail)+'\"><div class=\"readiness-track\"><div class=\"readiness-fill\" style=\"width:'+value+'%\"></div></div><span class=\"readiness-value '+cls+'\">'+value+'%</span></div>';
+  }
+
+  function dashboardTabMatches(record, tab){
+    var status=String(record.status||'Booking Received');
+    if(tab==='All') return true;
+    if(tab==='Pending') return ['Booking Received','Documentation Pending','Documentation Complete'].indexOf(status)!==-1;
+    if(tab==='Scheduled') return status==='Registration Scheduled'||status==='Registration Confirmed';
+    if(tab==='Completed') return status==='Registered / Completed';
+    if(tab==='On Hold') return status==='On Hold';
+    if(tab==='Cancelled') return status==='Cancelled';
+    return true;
+  }
+
+  function setDashboardTab(tab){
+    activeDashboardTab=tab||'All';
+    var ids={All:'tabAll',Pending:'tabPending',Scheduled:'tabScheduled',Completed:'tabCompleted','On Hold':'tabOnHold',Cancelled:'tabCancelled'};
+    Object.keys(ids).forEach(function(key){
+      var el=document.getElementById(ids[key]);
+      if(!el)return;
+      var active=key===activeDashboardTab;
+      el.classList.toggle('active',active);
+      el.setAttribute('aria-selected',active?'true':'false');
+    });
+    // Tabs are the primary status filter; clear the optional exact-status filter on tab change.
+    var statusFilter=document.getElementById('statusFilter');
+    if(statusFilter) statusFilter.value='';
+    renderList();
+  }
+
+  function updateDashboardTabCounts(){
+    var counts={All:registrationList.length,Pending:0,Scheduled:0,Completed:0,'On Hold':0,Cancelled:0};
+    registrationList.forEach(function(r){
+      ['Pending','Scheduled','Completed','On Hold','Cancelled'].forEach(function(tab){
+        if(dashboardTabMatches(r,tab)) counts[tab]++;
       });
+    });
+    var map={All:'countAll',Pending:'countPending',Scheduled:'countScheduled',Completed:'countCompleted','On Hold':'countOnHold',Cancelled:'countCancelled'};
+    Object.keys(map).forEach(function(key){var el=document.getElementById(map[key]);if(el)el.textContent=counts[key];});
+  }
+
+  function sortValueForRecord(record, key){
+    var finance=getDashboardPaymentSummary(record);
+    var missing=Array.isArray(record.readinessMissing)?record.readinessMissing:[];
+    var buyers=(record.buyers||[]).map(function(b){return b.name||'';}).join(' ');
+    var latest=finance.latest||{};
+    if(key==='id'||key==='projectName'||key==='plotNumber'||key==='status'||key==='buyer'||key==='lastPaymentMode'||key==='lastBankName'||key==='lastBankBranch'||key==='loanRequired'||key==='loanBankName'||key==='loanBranch'||key==='updatedBy'||key==='missingItems') {
+      if(key==='buyer')return buyers.toLocaleLowerCase();
+      if(key==='lastPaymentMode')return String(latest.mode||'').toLocaleLowerCase();
+      if(key==='lastBankName')return String(latest.bankName||'').toLocaleLowerCase();
+      if(key==='lastBankBranch')return String(latest.branch||'').toLocaleLowerCase();
+      if(key==='loanRequired')return String(record.loanRequired||'No').toLocaleLowerCase();
+      if(key==='loanBankName')return String(record.loanBankName||'').toLocaleLowerCase();
+      if(key==='loanBranch')return String(record.loanBranch||'').toLocaleLowerCase();
+      if(key==='updatedBy')return String(record._updatedBy||record.updatedBy||'').toLocaleLowerCase();
+      if(key==='missingItems')return missing.join(' ').toLocaleLowerCase();
+      return String(record[key]||'').toLocaleLowerCase();
     }
-  })();
-  </script>
+    if(key==='bookingDate'||key==='tentativeDate'||key==='updatedAt'||key==='estimatedDate'||key==='confirmedDate'||key==='lastPaymentDate'){
+      var raw=key==='updatedAt'?(record._updatedAt||record.updatedAt):(key==='lastPaymentDate'?latest.date:record[key]);
+      var time=raw?new Date(raw).getTime():0;
+      return Number.isFinite(time)?time:0;
+    }
+    if(key==='balance')return finance.balance;
+    if(key==='totalPaid')return finance.total;
+    if(key==='paymentCompletionPercent')return finance.completion;
+    if(key==='lastPaymentMode')return String(latest.mode||'').toLocaleLowerCase();
+    if(key==='lastBankName')return String(latest.bankName||'').toLocaleLowerCase();
+    if(key==='lastBankBranch')return String(latest.branch||'').toLocaleLowerCase();
+    if(key==='numberOfBuyers')return (record.buyers||[]).length;
+    if(key==='pendingChecks')return missing.length;
+    if(key==='plotSizeSqFt')return Number(record.plotSizeSqFt!==undefined&&record.plotSizeSqFt!==null?record.plotSizeSqFt:calculateSqFt(record.plotSize||0));
+    return Number(record[key]||0);
+  }
+
+  function sortDashboard(key){
+    if(dashboardSortKey===key) dashboardSortDirection=dashboardSortDirection==='asc'?'desc':'asc';
+    else {dashboardSortKey=key;dashboardSortDirection=(key==='updatedAt'||key==='bookingDate'||key==='tentativeDate')?'desc':'asc';}
+    var select=document.getElementById('sortSelect');
+    if(select) select.value=dashboardSortKey;
+    updateSortControls();
+    renderList();
+  }
+
+  function changeSort(key){
+    dashboardSortKey=key||'updatedAt';
+    dashboardSortDirection=(dashboardSortKey==='updatedAt'||dashboardSortKey==='bookingDate'||dashboardSortKey==='tentativeDate')?'desc':'asc';
+    updateSortControls();
+    renderList();
+  }
+
+  function toggleSortDirection(){
+    dashboardSortDirection=dashboardSortDirection==='asc'?'desc':'asc';
+    updateSortControls();
+    renderList();
+  }
+
+  function updateSortControls(){
+    var select=document.getElementById('sortSelect');
+    if(select) select.value=dashboardSortKey;
+    var button=document.getElementById('sortDirectionButton');
+    if(button) button.textContent=dashboardSortDirection==='asc'?'Ascending ↑':'Descending ↓';
+    dashboardColumnDefinitions.forEach(function(column){var icon=document.getElementById('sortIcon-'+column.key);if(icon)icon.textContent=column.key===dashboardSortKey?(dashboardSortDirection==='asc'?'↑':'↓'):'↕';});
+  }
+
+  function renderList(){
+    var q=(document.getElementById('searchBox').value||'').toLowerCase().trim();
+    var status=document.getElementById('statusFilter').value;
+    var filtered=registrationList.filter(function(r){
+      var buyers=(r.buyers||[]).map(function(b){return b.name||'';}).join(' ');
+      var text=[r.id,r.projectName,r.plotNumber,buyers].join(' ').toLowerCase();
+      return dashboardTabMatches(r,activeDashboardTab)&&(!q||text.indexOf(q)!==-1)&&(!status||r.status===status);
+    });
+    filtered.sort(function(a,b){
+      var av=sortValueForRecord(a,dashboardSortKey),bv=sortValueForRecord(b,dashboardSortKey);
+      var cmp=(typeof av==='string'&&typeof bv==='string')?av.localeCompare(bv,undefined,{numeric:true,sensitivity:'base'}):(av===bv?0:(av<bv?-1:1));
+      return dashboardSortDirection==='asc'?cmp:-cmp;
+    });
+    document.getElementById('resultCount').textContent=filtered.length+' of '+registrationList.length+' records';
+    var body=document.getElementById('recordsBody');
+    if(!filtered.length){
+      body.innerHTML='<tr><td colspan="'+visibleDashboardColumnCount()+'" class="empty">'+(registrationList.length?'No registrations match the selected tab or filters.':'No registrations saved yet. Select “New Registration” to create one.')+'</td></tr>' ;
+      applyDashboardColumnVisibility();
+      updateSortControls();
+      return;
+    }
+    body.innerHTML=filtered.map(function(r){
+      var cells=dashboardColumnDefinitions.map(function(column){return '<td data-dashboard-column="'+escapeAttr(column.key)+'">'+dashboardCellHtml(r,column.key)+'</td>';}).join('');
+      return '<tr>'+cells+'<td data-dashboard-column="action"><button class="btn secondary small" onclick="openRecord(\''+jsQuote(r.id)+'\')">Open / Edit</button></td></tr>';
+    }).join('');
+    applyDashboardColumnVisibility();
+    updateSortControls();
+  }
+
+  function openNew(){
+    currentRecordId='';currentUploads=[];
+    showEditor({buyers:[emptyBuyer()],payments:[],status:'Booking Received'});
+  }
+  function openRecord(id){
+    id=String(id||'').trim();
+    if(!id){showToast('Registration ID is missing from this dashboard row.',true);return;}
+    setDashboardMessage('Opening registration '+id+'…','');
+    google.script.run.withSuccessHandler(function(response){
+      if(!response || response.ok!==true || !response.record){
+        showToast(response && response.message ? response.message : 'The server did not return the selected registration.',true);
+        setDashboardMessage('Could not open '+id+'. '+(response && response.message ? response.message : 'No record was returned.'),'error');
+        return;
+      }
+      var record=response.record;
+      record.id=record.id||id;
+      currentRecordId=record.id;
+      currentUploads=[];
+      showEditor(record);
+      loadUploadHistory();
+    }).withFailureHandler(function(err){
+      var message=errorText(err);
+      showToast('Unable to open registration '+id+': '+message,true);
+      setDashboardMessage('Open/Edit failed for '+id+': '+message,'error');
+    }).getRegistrationForEditV4(sessionToken,id);
+  }
+
+  function autoSavePreferenceKey(){
+    var employee=(currentUser && currentUser.employeeId) ? String(currentUser.employeeId).trim().toLowerCase() : 'guest';
+    return 'plotRegistrationAutoSaveEnabledV1_'+encodeURIComponent(employee);
+  }
+
+  function loadAutoSavePreference(){
+    // Preference is stored separately for each employee in this browser.
+    // Existing V16 users default to ON so the current workflow is preserved.
+    autoSaveEnabled=true;
+    try{
+      var saved=window.localStorage.getItem(autoSavePreferenceKey());
+      if(saved==='0' || saved==='false') autoSaveEnabled=false;
+      if(saved==='1' || saved==='true') autoSaveEnabled=true;
+    }catch(e){}
+    updateAutoSaveControls();
+  }
+
+  function updateAutoSaveControls(){
+    var toggle=document.getElementById('autoSaveToggle');
+    var state=document.getElementById('autoSaveToggleState');
+    var banner=document.getElementById('autoSaveModeMessage');
+    if(toggle) toggle.checked=!!autoSaveEnabled;
+    if(state){state.textContent=autoSaveEnabled?'ON':'OFF';state.classList.toggle('off',!autoSaveEnabled);}
+    if(banner){
+      banner.className='statusline '+(autoSaveEnabled?'ok':'');
+      banner.textContent=autoSaveEnabled
+        ? 'Auto-save is ON — changes are saved automatically after a short pause. You can also select Save.'
+        : 'Auto-save is OFF — your changes will be saved only when you click Save.';
+    }
+  }
+
+  function setAutoSaveEnabled(enabled){
+    autoSaveEnabled=!!enabled;
+    try{window.localStorage.setItem(autoSavePreferenceKey(),autoSaveEnabled?'1':'0');}catch(e){}
+    updateAutoSaveControls();
+    if(!autoSaveEnabled){
+      if(autoSaveTimer){clearTimeout(autoSaveTimer);autoSaveTimer=null;}
+      var formRecord=readForm();
+      var dirty=hasMeaningfulClientData(formRecord) && registrationFingerprint(formRecord)!==autoSaveLastSavedFingerprint;
+      document.getElementById('saveStatus').textContent=dirty
+        ? 'Auto-save is OFF · Unsaved changes. Click Save to store them.'
+        : 'Auto-save is OFF · All changes are saved.';
+      return;
+    }
+    scheduleAutoSave();
+  }
+
+  function showEditor(record){
+    record=record||{};
+    autoSaveHydratingForm=true;
+    if(autoSaveTimer){clearTimeout(autoSaveTimer);autoSaveTimer=null;}
+    autoSaveQueued=false;autoSaveCloseAfter=false;autoSaveInProgress=false;
+    currentRecordId=record.id||'';
+    ecItems = Array.isArray(record.ecItems) && record.ecItems.length
+      ? record.ecItems.map(function(name){ return String(name || '').trim(); }).filter(Boolean)
+      : ['Certified EC'];
+    if (!ecItems.some(function(name){ return name === 'Certified EC'; })) ecItems.unshift('Certified EC');
+    ecItems = uniqueEcNames(ecItems);
+    pattaItems = Array.isArray(record.pattaItems) && record.pattaItems.length
+      ? record.pattaItems.map(function(name){ return String(name || '').trim(); }).filter(Boolean)
+      : ['Patta'];
+    if (!pattaItems.some(function(name){ return name === 'Patta'; })) pattaItems.unshift('Patta');
+    pattaItems = uniquePattaNames(pattaItems);
+    document.getElementById('editorTitle').textContent=currentRecordId?'Edit Registration':'New Registration';
+    document.getElementById('editorSub').textContent=currentRecordId?'Registration ID: '+currentRecordId:'A permanent Registration ID will be generated automatically after your first entry.';
+    document.getElementById('regId').value=currentRecordId;
+    setVal('projectName',record.projectName);setVal('plotNumber',record.plotNumber);setVal('plotSize',record.plotSize);calculatePlotSizeSqFt();
+    setVal('loanRequired',record.loanRequired||'No');setVal('loanBankName',record.loanBankName||'');setVal('loanBranch',record.loanBranch||'');setVal('loanSanctionedValue',record.loanSanctionedValue||'');toggleLoanDetails();
+    setVal('bookingDate',record.bookingDate);setVal('estimatedDate',record.estimatedDate);setVal('tentativeDate',record.tentativeDate);setVal('deadlineDate',record.deadlineDate);setVal('confirmedDate',record.confirmedDate);
+    setVal('registrationValue',record.registrationValue);setVal('status',record.status||'Booking Received');setVal('lastUpdated',formatDateTime(record._updatedAt||record.updatedAt));setVal('remarks',record.remarks);
+    document.getElementById('buyersContainer').innerHTML='';
+    (record.buyers&&record.buyers.length?record.buyers:[emptyBuyer()]).forEach(function(b){addBuyer(b);});
+    document.getElementById('paymentsContainer').innerHTML='';
+    (record.payments||[]).forEach(function(p){addPayment(p);});
+    if(!(record.payments||[]).length) updateFinance();
+    document.getElementById('uploadHistory').innerHTML=currentRecordId?'<div class="empty">Loading document list and version history…</div>':'<div class="empty">The registration will auto-save after your first entry; document uploads will then be enabled.</div>';
+    updateDocumentOptions();
+    document.getElementById('readinessBox').textContent='Readiness will be calculated from the saved buyer details and document history.';
+    updateAutoSaveControls();
+    document.getElementById('saveStatus').textContent=currentRecordId?'All changes saved · '+currentRecordId:(autoSaveEnabled?'Auto-save ready · enter any registration detail to begin':'Auto-save is OFF · enter details, then click Save');
+    document.getElementById('editorOverlay').classList.remove('hidden');
+    document.getElementById('appView').classList.add('hidden');
+    recalculateDates();updateFinance();
+    autoSaveLastSavedFingerprint=registrationFingerprint(readForm());
+    autoSaveHydratingForm=false;
+  }
+
+  function closeEditor(){
+    if(autoSaveTimer){clearTimeout(autoSaveTimer);autoSaveTimer=null;}
+    if(autoSaveInProgress){autoSaveCloseAfter=true;autoSaveQueued=true;return;}
+    var current=readForm();
+    var dirty=hasMeaningfulClientData(current) && registrationFingerprint(current)!==autoSaveLastSavedFingerprint;
+    if(dirty){
+      if(autoSaveEnabled){
+        autoSaveCloseAfter=true;
+        document.getElementById('saveStatus').textContent='Saving your latest changes before returning to the dashboard…';
+        saveRecord({auto:true,force:true});
+      }else{
+        document.getElementById('saveStatus').textContent='Auto-save is OFF · Unsaved changes. Click Save before returning to the dashboard.';
+        showToast('This registration has unsaved changes. Click Save before returning to the dashboard.',true);
+      }
+      return;
+    }
+    closeEditorNow();
+  }
+
+  function closeEditorNow(){
+    if(autoSaveTimer){clearTimeout(autoSaveTimer);autoSaveTimer=null;}
+    autoSaveCloseAfter=false;
+    document.getElementById('editorOverlay').classList.add('hidden');
+    document.getElementById('appView').classList.remove('hidden');
+    if(sessionToken) loadList();
+  }
+
+  function hasMeaningfulClientData(record){
+    var r=record||{};
+    if(['projectName','plotNumber','bookingDate','tentativeDate','confirmedDate','remarks'].some(function(k){return String(r[k]||'').trim()!=='';})) return true;
+    if(Number(r.plotSize||0)>0||Number(r.registrationValue||0)>0||Number(r.loanSanctionedValue||0)>0) return true;
+    if(String(r.loanRequired||'').toLowerCase()==='yes'||String(r.loanBankName||'').trim()||String(r.loanBranch||'').trim()) return true;
+    if(String(r.status||'')&&String(r.status)!=='Booking Received') return true;
+    if((r.buyers||[]).some(function(b){return ['name','aadhaarNumber','panNumber','mobile'].some(function(k){return String(b[k]||'').trim()!=='';});})) return true;
+    if((r.payments||[]).some(function(p){return ['date','mode','reference','remarks','bankName','branch'].some(function(k){return String(p[k]||'').trim()!=='';})||Number(p.amount||0)>0;})) return true;
+    if((r.ecItems||[]).length>1||(r.pattaItems||[]).length>1) return true;
+    return false;
+  }
+
+  function registrationFingerprint(record){
+    var copy=Object.assign({},record||{});
+    copy.id='';
+    return JSON.stringify(copy);
+  }
+
+  function handleRegistrationFormMutation(event){
+    if(autoSaveHydratingForm) return;
+    var target=event && event.target;
+    if(!target || target.type==='file' || target.classList.contains('document-remarks') || target.readOnly || target.disabled) return;
+    scheduleAutoSave();
+  }
+
+  function scheduleAutoSave(delay){
+    if(autoSaveHydratingForm || document.getElementById('editorOverlay').classList.contains('hidden')) return;
+    if(autoSaveTimer){clearTimeout(autoSaveTimer);autoSaveTimer=null;}
+    var record=readForm();
+    if(!hasMeaningfulClientData(record)){
+      document.getElementById('saveStatus').textContent=autoSaveEnabled?'Auto-save ready · enter any registration detail to begin':'Auto-save is OFF · enter details, then click Save';
+      return;
+    }
+    var dirty=registrationFingerprint(record)!==autoSaveLastSavedFingerprint;
+    if(!dirty && !autoSaveInProgress){
+      document.getElementById('saveStatus').textContent=autoSaveEnabled?'All changes saved':'Auto-save is OFF · All changes are saved';
+      return;
+    }
+    if(!autoSaveEnabled){
+      document.getElementById('saveStatus').textContent='Auto-save is OFF · Unsaved changes. Click Save to store them.';
+      return;
+    }
+    document.getElementById('saveStatus').textContent='Unsaved changes · auto-saving…';
+    autoSaveTimer=setTimeout(function(){autoSaveTimer=null;saveRecord({auto:true});}, typeof delay==='number'?delay:AUTO_SAVE_DELAY_MS);
+  }
+
+  function emptyBuyer(){return {id:'',name:'',aadhaarNumber:'',panNumber:'',mobile:''};}
+  function addBuyer(data){
+    data=data||emptyBuyer();
+    var id=data.id||('BUY-'+Date.now()+'-'+Math.floor(Math.random()*10000));
+    var row=document.createElement('div');row.className='repeat-row buyer-row';row.dataset.buyerId=id;
+    row.innerHTML='<div><label class="mini-label">Buyer Name *</label><input class="field buyer-name" value="'+escapeAttr(data.name||'')+'" placeholder="Full name"></div><div><label class="mini-label">Aadhaar Number</label><input class="field buyer-aadhaar" value="'+escapeAttr(data.aadhaarNumber||'')+'" placeholder="Aadhaar number"></div><div><label class="mini-label">PAN Number</label><input class="field buyer-pan" value="'+escapeAttr(data.panNumber||'')+'" placeholder="PAN"></div><div><label class="mini-label">Mobile Number</label><input class="field buyer-mobile" value="'+escapeAttr(data.mobile||'')+'" placeholder="Mobile"></div><div><label class="mini-label">Buyer Ref.</label><input class="field" value="'+escapeAttr(id)+'" readonly></div><button type="button" class="delete-btn" title="Remove buyer" onclick="this.parentNode.remove();updateDocumentOptions();scheduleAutoSave()">×</button>';
+    document.getElementById('buyersContainer').appendChild(row);updateDocumentOptions();if(!autoSaveHydratingForm)scheduleAutoSave();
+  }
+  function paymentModeOptions(selectedMode){
+    var modes=['Cash','Cheque','Demand Draft','NEFT','RTGS','IMPS','UPI','Debit Card','Credit Card','Bank Transfer','Other'];
+    var selected=String(selectedMode||'').trim();
+    var html='<option value="">Select payment mode</option>';
+    var matched=false;
+    modes.forEach(function(mode){
+      var isSelected=selected.toLowerCase()===mode.toLowerCase();
+      if(isSelected) matched=true;
+      html+='<option value="'+escapeAttr(mode)+'"'+(isSelected?' selected':'')+'>'+escapeHtml(mode)+'</option>';
+    });
+    // Retain any legacy/custom mode value already saved in an older registration.
+    if(selected&&!matched) html+='<option value="'+escapeAttr(selected)+'" selected>'+escapeHtml(selected)+' (existing)</option>';
+    return html;
+  }
+
+  function addPayment(data){
+    data=data||{id:'',date:'',amount:'',mode:'',bankName:'',branch:'',reference:'',remarks:''};
+    var id=data.id||('PAY-'+Date.now()+'-'+Math.floor(Math.random()*10000));
+    var row=document.createElement('div');row.className='payment-row payment-row-item';row.dataset.paymentId=id;
+    row.innerHTML='<div class="payment-grid">'+
+      '<div><label class="mini-label">Payment Date</label><input type="date" class="field payment-date" value="'+escapeAttr(data.date||'')+'"></div>'+
+      '<div><label class="mini-label">Amount (₹)</label><input type="number" min="0" step="1" class="field payment-amount" value="'+escapeAttr(data.amount||'')+'" oninput="updateFinance()"></div>'+
+      '<div><label class="mini-label">Payment Mode</label><select class="field payment-mode">'+paymentModeOptions(data.mode)+'</select></div>'+
+      '<div><label class="mini-label">Reference / UTR</label><input class="field payment-reference" value="'+escapeAttr(data.reference||'')+'" placeholder="Transaction reference"></div>'+
+      '<div><label class="mini-label">Bank Name</label><input class="field payment-bank-name" value="'+escapeAttr(data.bankName||'')+'" placeholder="Bank name"></div>'+
+      '<div><label class="mini-label">Bank Branch</label><input class="field payment-bank-branch" value="'+escapeAttr(data.branch||'')+'" placeholder="Branch name"></div>'+
+      '<div class="payment-remarks-wrap"><label class="mini-label">Payment Remarks</label><input class="field payment-remarks" value="'+escapeAttr(data.remarks||'')+'" placeholder="Enter remarks for this payment"></div>'+
+      '<div class="payment-proof-wrap"><label class="mini-label">Payment Proof Attachment</label><div class="payment-proof-current">No payment proof uploaded yet.</div><div class="payment-proof-actions"><input class="payment-proof-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"><button type="button" class="btn secondary small payment-proof-button" onclick="uploadPaymentProofFromRow(this)">Upload Proof</button><span class="doc-upload-hint">Attach cheque, UTR, receipt or bank proof for this payment</span></div></div>'+
+      '</div><button type="button" class="delete-btn" title="Remove payment" onclick="removePaymentRow(this)">×</button>';
+    document.getElementById('paymentsContainer').appendChild(row);updateFinance();renderPaymentProofForRow(row);if(!autoSaveHydratingForm)scheduleAutoSave();
+  }
+
+  function paymentProofDocumentName(paymentId){return 'Payment Proof - '+String(paymentId||'');}
+
+  function renderPaymentProofForRow(row){
+    if(!row)return;
+    var paymentId=String(row.dataset.paymentId||'');
+    var documentName=paymentProofDocumentName(paymentId);
+    var history=currentUploads.filter(function(item){return String(item.documentName||'')===documentName;});
+    history.sort(function(a,b){return Number(b.version||0)-Number(a.version||0);});
+    var current=row.querySelector('.payment-proof-current');
+    if(!current)return;
+    if(!history.length){current.textContent='No payment proof uploaded yet.';return;}
+    var latest=history[0];
+    var out='<div><strong>Latest proof:</strong> <a target="_blank" rel="noopener" href="'+escapeAttr(latest.url||'')+'">'+escapeHtml(latest.fileName||'Open payment proof')+'</a> <span class="doc-meta">· v'+escapeHtml(latest.version||1)+' · '+escapeHtml(formatDateTime(latest.uploadedAt))+'</span></div>';
+    out+='<details class="payment-proof-versions"><summary>Proof history ('+history.length+' version'+(history.length===1?'':'s')+')</summary><ul>';
+    history.forEach(function(item){out+='<li>v'+escapeHtml(item.version||1)+' · '+(item.url?'<a target="_blank" rel="noopener" href="'+escapeAttr(item.url)+'">'+escapeHtml(item.fileName||'Open file')+'</a>':escapeHtml(item.fileName||''))+' · '+escapeHtml(formatDateTime(item.uploadedAt))+' · '+escapeHtml(item.uploadedBy||'')+'</li>';});
+    out+='</ul></details>';
+    current.innerHTML=out;
+  }
+
+  function renderPaymentProofControls(){
+    Array.prototype.forEach.call(document.querySelectorAll('.payment-row-item'),function(row){renderPaymentProofForRow(row);});
+  }
+
+  function removePaymentRow(button){
+    var row=button&&button.parentNode;
+    if(!row)return;
+    var paymentId=String(row.dataset.paymentId||'');
+    var proofName=paymentProofDocumentName(paymentId);
+    var hasProof=currentUploads.some(function(item){return String(item.documentName||'')===proofName;});
+    if(hasProof&&!window.confirm('This payment has proof files in its history. Removing the payment will not delete those files, but they will no longer appear under a payment row. Remove the payment entry?'))return;
+    row.remove();updateFinance();scheduleAutoSave();
+  }
+
+  function uploadPaymentProofFromRow(button){
+    var row=button;
+    while(row && !(row.classList&&row.classList.contains('payment-row-item'))) row=row.parentNode;
+    if(!row)return;
+    var input=row.querySelector('.payment-proof-file');
+    var file=input&&input.files&&input.files[0];
+    if(!file){showToast('Choose a payment proof file first.',true);return;}
+    if(!currentRecordId){showToast('Save the registration before uploading a payment proof.',true);return;}
+    if(autoSaveInProgress){showToast('A save is in progress. Wait until it completes, then upload the proof.',true);return;}
+    var current=readForm();
+    if(registrationFingerprint(current)!==autoSaveLastSavedFingerprint){
+      if(autoSaveEnabled){if(autoSaveTimer){clearTimeout(autoSaveTimer);autoSaveTimer=null;}saveRecord({auto:true,force:true});showToast('Payment details are being saved. Once the save completes, select the proof again.',true);}
+      else showToast('Click Save to store the payment details before uploading the proof.',true);
+      return;
+    }
+    if(file.size>10*1024*1024){input.value='';showToast('File exceeds the 10 MB upload limit.',true);return;}
+    var paymentId=String(row.dataset.paymentId||'');
+    if(!paymentId){showToast('Payment ID is missing. Save the payment again.',true);return;}
+    button.disabled=true;button.textContent='Uploading…';
+    var reader=new FileReader();
+    reader.onload=function(event){
+      var base64=String(event.target.result).split(',')[1];
+      var docName=paymentProofDocumentName(paymentId);
+      var paymentRemarks=row.querySelector('.payment-remarks');
+      google.script.run.withSuccessHandler(function(result){
+        input.value='';button.disabled=false;button.textContent='Upload Proof';
+        showToast('Payment proof uploaded · '+result.fileName+' · version '+result.version);
+        loadUploadHistory();
+      }).withFailureHandler(function(err){
+        button.disabled=false;button.textContent='Upload Proof';
+        showToast('Payment proof upload failed: '+errorText(err),true);
+      }).uploadFile(sessionToken,currentRecordId,'Payment Proof',docName,file.name,file.type,base64,paymentRemarks?paymentRemarks.value:'');
+    };
+    reader.onerror=function(){input.value='';button.disabled=false;button.textContent='Upload Proof';showToast('Could not read the selected payment proof.',true);};
+    reader.readAsDataURL(file);
+  }
+
+  function readForm(){
+    var buyers=Array.prototype.slice.call(document.querySelectorAll('.buyer-row')).map(function(row){return {id:row.dataset.buyerId,name:row.querySelector('.buyer-name').value.trim(),aadhaarNumber:row.querySelector('.buyer-aadhaar').value.trim(),panNumber:row.querySelector('.buyer-pan').value.trim(),mobile:row.querySelector('.buyer-mobile').value.trim()};}).filter(function(b){return b.name||b.aadhaarNumber||b.panNumber||b.mobile;});
+    var payments=Array.prototype.slice.call(document.querySelectorAll('.payment-row-item')).map(function(row){return {id:row.dataset.paymentId,date:row.querySelector('.payment-date').value,amount:Number(row.querySelector('.payment-amount').value||0),mode:row.querySelector('.payment-mode').value.trim(),bankName:row.querySelector('.payment-bank-name').value.trim(),branch:row.querySelector('.payment-bank-branch').value.trim(),reference:row.querySelector('.payment-reference').value.trim(),remarks:row.querySelector('.payment-remarks').value.trim()};}).filter(function(p){return p.date||p.amount||p.mode||p.bankName||p.branch||p.reference||p.remarks;});
+    var booking=document.getElementById('bookingDate').value;var tentative=document.getElementById('tentativeDate').value;
+    var plotCents=Number(document.getElementById('plotSize').value||0);return {id:currentRecordId||document.getElementById('regId').value,projectName:document.getElementById('projectName').value.trim(),plotNumber:document.getElementById('plotNumber').value.trim(),plotSize:plotCents,plotSizeSqFt:calculateSqFt(plotCents),loanRequired:document.getElementById('loanRequired').value,loanBankName:document.getElementById('loanBankName').value.trim(),loanBranch:document.getElementById('loanBranch').value.trim(),loanSanctionedValue:Number(document.getElementById('loanSanctionedValue').value||0),bookingDate:booking,estimatedDate:addDate(booking,45),tentativeDate:tentative,deadlineDate:addDate(tentative,-6),confirmedDate:document.getElementById('confirmedDate').value,registrationValue:Number(document.getElementById('registrationValue').value||0),status:document.getElementById('status').value,remarks:document.getElementById('remarks').value.trim(),buyers:buyers,payments:payments,ecItems:ecItems.slice(),pattaItems:pattaItems.slice()};
+  }
+
+  function saveRecord(options){
+    options=options||{};
+    var isAuto=!!options.auto;
+    if(isAuto && !autoSaveEnabled){
+      document.getElementById('saveStatus').textContent='Auto-save is OFF · Unsaved changes. Click Save to store them.';
+      return;
+    }
+    if(autoSaveTimer){clearTimeout(autoSaveTimer);autoSaveTimer=null;}
+    var record=readForm();
+    if(!hasMeaningfulClientData(record)){
+      if(!isAuto) showToast('Enter at least one registration detail before saving.',true);
+      if(autoSaveCloseAfter) closeEditorNow();
+      return;
+    }
+    var requestFingerprint=registrationFingerprint(record);
+    var wasNewRecord=!currentRecordId;
+    if(!options.force && requestFingerprint===autoSaveLastSavedFingerprint && !autoSaveInProgress){
+      if(options.manual) showToast('All changes are already saved.');
+      if(autoSaveCloseAfter) closeEditorNow();
+      return;
+    }
+    if(autoSaveInProgress){
+      autoSaveQueued=true;
+      if(options.closeAfter) autoSaveCloseAfter=true;
+      return;
+    }
+
+    autoSaveInProgress=true;
+    var button=document.getElementById('saveButton');
+    if(button){button.disabled=true;button.textContent=isAuto?'Auto-saving…':'Saving…';}
+    document.getElementById('saveStatus').textContent=(isAuto?'Auto-saving':'Saving')+' · '+(currentRecordId||'creating registration ID');
+
+    google.script.run.withSuccessHandler(function(result){
+      autoSaveInProgress=false;
+      if(button){button.disabled=false;button.textContent='Save';}
+      if(!result||!result.ok){
+        document.getElementById('saveStatus').textContent='Save not confirmed · your changes are still on screen. Click Save to retry.';
+        if(!isAuto) showToast('The server did not confirm the save.',true);
+        if(autoSaveCloseAfter) autoSaveCloseAfter=false;
+        return;
+      }
+      currentRecordId=result.id;
+      document.getElementById('regId').value=result.id;
+      // The new registration's document rows were initially rendered with disabled upload buttons.
+      // Enable them after the first autosave creates its permanent Registration ID.
+      if(wasNewRecord){
+        Array.prototype.forEach.call(document.querySelectorAll('.document-upload-button'),function(uploadButton){uploadButton.disabled=false;});
+      }
+      document.getElementById('lastUpdated').value=formatDateTime(result.updatedAt);
+      document.getElementById('editorTitle').textContent='Edit Registration';
+      document.getElementById('editorSub').textContent='Registration ID: '+result.id;
+      autoSaveLastSavedFingerprint=requestFingerprint;
+      document.getElementById('saveStatus').textContent=(isAuto?'Auto-saved':'Saved')+' · '+result.id+' · '+formatDateTime(result.updatedAt)+(autoSaveEnabled?'':' · Auto-save is OFF');
+      loadList();
+      if(!isAuto) showToast('Registration saved: '+result.id);
+
+      var latestFingerprint=registrationFingerprint(readForm());
+      if(latestFingerprint!==autoSaveLastSavedFingerprint){
+        autoSaveQueued=false;
+        if(autoSaveEnabled){
+          scheduleAutoSave(250);
+        }else{
+          document.getElementById('saveStatus').textContent='Auto-save is OFF · New unsaved changes remain. Click Save again to store them.';
+          autoSaveCloseAfter=false;
+        }
+        return;
+      }
+      autoSaveQueued=false;
+      if(autoSaveCloseAfter){closeEditorNow();return;}
+    }).withFailureHandler(function(err){
+      autoSaveInProgress=false;
+      if(button){button.disabled=false;button.textContent='Save';}
+      var message=errorText(err);
+      document.getElementById('saveStatus').textContent='Auto-save failed: '+message+' · click Save to retry.';
+      if(!isAuto) showToast('Save failed: '+message,true);
+      autoSaveQueued=false;
+      if(autoSaveCloseAfter) autoSaveCloseAfter=false;
+    }).saveRegistration(sessionToken,record);
+  }
+
+  function calculateSqFt(cents){var n=Number(cents||0);return Number.isFinite(n)&&n>=0?Math.round(n*435.6*100)/100:0;}
+  function calculatePlotSizeSqFt(){var centsField=document.getElementById('plotSize');var sqftField=document.getElementById('plotSizeSqFt');if(!centsField||!sqftField)return;var raw=String(centsField.value||'').trim();if(raw===''){sqftField.value='';return;}var cents=Number(raw);sqftField.value=Number.isFinite(cents)&&cents>=0?calculateSqFt(cents).toFixed(2):'';}
+  function toggleLoanDetails(){
+    var enabled=document.getElementById('loanRequired') && document.getElementById('loanRequired').value==='Yes';
+    ['loanBankNameWrap','loanBranchWrap','loanSanctionedValueWrap'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.toggle('hidden',!enabled);});
+  }
+
+  function formatArea(value){var n=Number(value||0);return Number.isFinite(n)?n.toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2}):'0';}
+  function recalculateDates(){setVal('estimatedDate',addDate(document.getElementById('bookingDate').value,45));setVal('deadlineDate',addDate(document.getElementById('tentativeDate').value,-6));}
+  function updateFinance(){var paid=Array.prototype.slice.call(document.querySelectorAll('.payment-amount')).reduce(function(s,x){return s+Number(x.value||0);},0);var val=Number(document.getElementById('registrationValue').value||0);setVal('totalPaid',paid.toFixed(2));setVal('balance',(val-paid).toFixed(2));}
+  function updateDocumentSection() {
+    // Compatibility handler; the new interface does not use a category dropdown.
+    renderUploadHistory();
+  }
+
+  function isEcDocumentName(name) {
+    return /^Certified EC(?:\s+\d+)?$/i.test(String(name || '').trim());
+  }
+
+  function uniqueEcNames(names) {
+    var seen = {};
+    var out = [];
+    (names || []).forEach(function(name) {
+      name = String(name || '').trim();
+      if (isEcDocumentName(name) && !seen[name.toLowerCase()]) {
+        seen[name.toLowerCase()] = true;
+        out.push(name);
+      }
+    });
+    if (!seen['certified ec']) out.unshift('Certified EC');
+    out.sort(function(a, b) {
+      function n(x) { var m = String(x).match(/\s+(\d+)$/); return m ? Number(m[1]) : 1; }
+      return n(a) - n(b);
+    });
+    return out;
+  }
+
+  function syncEcNamesFromHistory() {
+    var names = ecItems.slice();
+    currentUploads.forEach(function(upload) {
+      var name = String(upload.documentName || '').trim();
+      if (isEcDocumentName(name)) names.push(name);
+    });
+    ecItems = uniqueEcNames(names);
+  }
+
+  function addMoreEC() {
+    var used = {};
+    ecItems.forEach(function(name) {
+      var match = String(name).match(/^Certified EC(?:\s+(\d+))?$/i);
+      if (match) used[match[1] ? Number(match[1]) : 1] = true;
+    });
+    var next = 2;
+    while (used[next]) next++;
+    ecItems.push('Certified EC ' + next);
+    ecItems = uniqueEcNames(ecItems);
+    renderUploadHistory();
+    scheduleAutoSave();
+    showToast('Certified EC ' + next + ' added. It will be saved automatically.');
+  }
+
+  function ecDisplayName(name) {
+    return name === 'Certified EC' ? 'Certified EC' : name;
+  }
+
+  function isPattaDocumentName(name) {
+    return /^Patta(?:\s+\d+)?$/i.test(String(name || '').trim());
+  }
+
+  function uniquePattaNames(names) {
+    var seen = {};
+    var out = [];
+    (names || []).forEach(function(name) {
+      name = String(name || '').trim();
+      if (isPattaDocumentName(name) && !seen[name.toLowerCase()]) {
+        seen[name.toLowerCase()] = true;
+        out.push(name);
+      }
+    });
+    if (!seen.patta) out.unshift('Patta');
+    return out;
+  }
+
+  function syncPattaNamesFromHistory() {
+    var names = pattaItems.slice();
+    currentUploads.forEach(function(upload) {
+      var name = String(upload.documentName || '').trim();
+      if (isPattaDocumentName(name)) names.push(name);
+    });
+    pattaItems = uniquePattaNames(names);
+  }
+
+  function pattaDisplayName(name) {
+    return name === 'Patta' ? 'Patta 1' : name;
+  }
+
+  function addMorePatta() {
+    var used = {};
+    pattaItems.forEach(function(name) {
+      var match = String(name).match(/^Patta(?:\s+(\d+))?$/i);
+      if (match) used[match[1] ? Number(match[1]) : 1] = true;
+    });
+    var next = 2;
+    while (used[next]) next++;
+    pattaItems.push('Patta ' + next);
+    renderUploadHistory();
+    scheduleAutoSave();
+    showToast('Patta ' + next + ' added. It will be saved automatically.');
+  }
+
+  function getDocumentNames() {
+    var names = [];
+    var buyerCount = document.querySelectorAll('.buyer-row').length;
+    for (var i = 1; i <= buyerCount; i++) {
+      names.push({group:'Buyer Documents', name:'Buyer ' + i + ' - Aadhaar'});
+      names.push({group:'Buyer Documents', name:'Buyer ' + i + ' - PAN'});
+    }
+    syncEcNamesFromHistory();
+    ecItems.forEach(function(name) {
+      names.push({group:'EC Documents', name:name, label:ecDisplayName(name)});
+    });
+    documentCategories.forEach(function(name) {
+      names.push({group:'Registration Documents', name:name});
+    });
+    syncPattaNamesFromHistory();
+    pattaItems.forEach(function(name) {
+      names.push({group:'Patta Documents', name:name, label:pattaDisplayName(name)});
+    });
+    // Keep historical uploads visible even if a buyer row or Patta entry was later removed from the form.
+    currentUploads.forEach(function(upload) {
+      var name = String(upload.documentName || '');
+      if (/^Payment Proof\s+-\s+/i.test(name)) return;
+      if (name && !names.some(function(item){return item.name === name;})) {
+        var isPatta = isPattaDocumentName(name);
+        var isEc = isEcDocumentName(name);
+        names.push({group:isPatta ? 'Patta Documents' : (isEc ? 'EC Documents' : 'Previous / Other Documents'), name:name,
+          label:isPatta ? pattaDisplayName(name) : (isEc ? ecDisplayName(name) : name)});
+      }
+    });
+    return names;
+  }
+
+  function updateDocumentOptions() {
+    renderUploadHistory();
+  }
+
+  function chooseDocumentFile(index) {
+    var row = document.querySelector('.document-row[data-doc-index="' + index + '"]');
+    if (!row) { showToast('Could not find this document row. Refresh the form and try again.', true); return; }
+    var input = row.querySelector('.document-file');
+    if (!currentRecordId) {
+      if (hasMeaningfulClientData(readForm())) {
+        document.getElementById('saveStatus').textContent='Saving the draft before document upload is enabled…';
+        if (autoSaveTimer){clearTimeout(autoSaveTimer);autoSaveTimer=null;}
+        saveRecord({auto:true,force:true});
+        showToast('The registration is being saved. Once the Registration ID appears, click Upload again.');
+      } else {
+        showToast('Enter a registration detail first. The form will auto-save and then enable uploads.', true);
+      }
+      return;
+    }
+    if (input) input.click();
+  }
+
+  function uploadDocumentAt(index) {
+    if (!currentRecordId) {
+      showToast('The registration draft is not saved yet. Wait for the auto-save indicator, then upload.', true);
+      return;
+    }
+    var row = document.querySelector('.document-row[data-doc-index="' + index + '"]');
+    if (!row) { showToast('Could not find this document row. Refresh the form and try again.', true); return; }
+    var documentName = row.getAttribute('data-document-name') || '';
+    var input = row.querySelector('.document-file');
+    var remarksInput = row.querySelector('.document-remarks');
+    var button = row.querySelector('.document-upload-button');
+    var file = input && input.files && input.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      if (input) input.value = '';
+      showToast('File exceeds the 10 MB upload limit.', true);
+      return;
+    }
+    if (button) { button.disabled = true; button.textContent = 'Uploading…'; }
+    var reader = new FileReader();
+    reader.onload = function(event) {
+      var base64 = String(event.target.result).split(',')[1];
+      var section = isPattaDocumentName(documentName) ? 'Patta' :
+        (isEcDocumentName(documentName) ? 'EC' :
+        (/^Buyer\s+\d+\s+-\s+/i.test(documentName) ? 'Buyer Documents' : 'Documents'));
+      google.script.run.withSuccessHandler(function(result) {
+        if (input) input.value = '';
+        if (remarksInput) remarksInput.value = '';
+        showToast('Uploaded ' + result.fileName + ' · ' + documentName + ' · version ' + result.version);
+        loadUploadHistory();
+      }).withFailureHandler(function(err) {
+        if (button) { button.disabled = false; button.textContent = 'Re-upload'; }
+        showToast('Upload failed for ' + documentName + ': ' + errorText(err), true);
+      }).uploadFile(sessionToken, currentRecordId, section, documentName, file.name, file.type, base64, remarksInput ? remarksInput.value : '');
+    };
+    reader.onerror = function() {
+      if (button) { button.disabled = false; button.textContent = 'Re-upload'; }
+      if (input) input.value = '';
+      showToast('Could not read the selected file.', true);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function toggleDocumentLog(index) {
+    var detail = document.getElementById('documentLogRow' + index);
+    var button = document.getElementById('documentLogButton' + index);
+    if (!detail || !button) return;
+    var opening = detail.classList.contains('hidden');
+    detail.classList.toggle('hidden', !opening);
+    button.setAttribute('aria-expanded', opening ? 'true' : 'false');
+    button.textContent = opening ? 'Hide log' : 'Log (' + button.getAttribute('data-count') + ')';
+  }
+
+  function loadUploadHistory() {
+    if (!currentRecordId) { renderUploadHistory(); renderReadiness(); return; }
+    document.getElementById('uploadHistory').innerHTML = '<div class="empty">Loading document list and version history…</div>';
+    google.script.run.withSuccessHandler(function(items) {
+      currentUploads = Array.isArray(items) ? items : [];
+      syncEcNamesFromHistory();
+      syncPattaNamesFromHistory();
+      renderUploadHistory();
+      renderPaymentProofControls();
+      renderReadiness();
+    }).withFailureHandler(function(err) {
+      document.getElementById('uploadHistory').innerHTML = '<div class="empty">Unable to load document history: ' + escapeHtml(errorText(err)) + '</div>';
+    }).getUploadHistory(sessionToken, currentRecordId);
+  }
+
+  function renderUploadHistory() {
+    var el = document.getElementById('uploadHistory');
+    if (!el) return;
+    var documents = getDocumentNames();
+    if (!documents.length) {
+      el.innerHTML = '<div class="empty">Add a buyer to display buyer documents.</div>';
+      return;
+    }
+
+    var html = '<table class="document-table"><colgroup><col><col><col><col><col></colgroup>' +
+      '<thead><tr><th>1. Document Name</th><th>2. Uploaded Document</th><th>3. Log</th><th>4. Remarks</th><th>5. Re-upload</th></tr></thead><tbody>';
+    var lastGroup = '';
+    documents.forEach(function(doc, index) {
+      if (doc.group !== lastGroup) {
+        var addButton = '';
+        if (doc.group === 'Patta Documents') addButton = '<button type="button" class="btn secondary small" onclick="addMorePatta()">+ Add More Patta</button>';
+        if (doc.group === 'EC Documents') addButton = '<button type="button" class="btn secondary small" onclick="addMoreEC()">+ Add More EC</button>';
+        html += '<tr class="document-group-row"><th colspan="5"><div class="document-group-bar"><span>' + escapeHtml(doc.group) + '</span>' + addButton + '</div></th></tr>';
+        lastGroup = doc.group;
+      }
+
+      var history = currentUploads.filter(function(item) { return String(item.documentName || '') === doc.name; });
+      history.sort(function(a, b) { return Number(b.version || 0) - Number(a.version || 0); });
+      var latest = history.length ? history[0] : null;
+      var countLabel = 'Log (' + history.length + ')';
+      var uploadedHtml = latest
+        ? '<div class="doc-latest"><a target="_blank" rel="noopener" href="' + escapeAttr(latest.url || '') + '">' + escapeHtml(latest.fileName || 'Open uploaded file') + '</a><span class="doc-meta">Latest version ' + escapeHtml(latest.version || 1) + ' · ' + escapeHtml(formatDateTime(latest.uploadedAt)) + '</span></div>'
+        : '<span class="doc-meta">No document uploaded yet</span>';
+
+      html += '<tr class="document-row" data-doc-index="' + index + '" data-document-name="' + escapeAttr(doc.name) + '">';
+      html += '<td><div class="doc-name">' + escapeHtml(doc.label || doc.name) + '</div><span class="doc-state' + (history.length ? ' uploaded' : '') + '">' + (history.length ? 'Uploaded' : 'Pending') + '</span></td>';
+      html += '<td>' + uploadedHtml + '</td>';
+      html += '<td><button type="button" class="btn secondary doc-log-button document-log-toggle" id="documentLogButton' + index + '" data-count="' + history.length + '" aria-expanded="false" onclick="toggleDocumentLog(' + index + ')">' + countLabel + '</button></td>';
+      html += '<td><label class="mini-label" for="uploadRemark' + index + '">Remarks for this upload</label><textarea id="uploadRemark' + index + '" class="field document-remarks" placeholder="Enter remarks (optional)"></textarea></td>';
+      html += '<td><div class="doc-upload-cell"><input class="document-file" id="documentFile' + index + '" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" onchange="uploadDocumentAt(' + index + ')"><button type="button" class="btn teal document-upload-button" onclick="chooseDocumentFile(' + index + ')"' + (!currentRecordId ? ' disabled' : '') + '>' + (history.length ? 'Re-upload' : 'Upload') + '</button><span class="doc-upload-hint">Select file to upload a new version</span></div></td>';
+      html += '</tr>';
+
+      html += '<tr class="document-log-row hidden" id="documentLogRow' + index + '"><td colspan="5">';
+      if (history.length) {
+        html += '<div class="document-log-panel"><div class="document-log-title">Version history · ' + escapeHtml(doc.label || doc.name) + '</div>';
+        html += '<table class="document-log-table"><thead><tr><th>Version</th><th>Uploaded Document</th><th>Uploaded By</th><th>Uploaded At</th><th>Remarks</th></tr></thead><tbody>';
+        history.forEach(function(item) {
+          html += '<tr><td><strong>v' + escapeHtml(item.version || 1) + '</strong></td>' +
+            '<td>' + (item.url ? '<a target="_blank" rel="noopener" href="' + escapeAttr(item.url) + '">' + escapeHtml(item.fileName || 'Open file') + '</a>' : escapeHtml(item.fileName || 'Uploaded file')) + '</td>' +
+            '<td>' + escapeHtml(item.uploadedBy || '') + '</td>' +
+            '<td>' + escapeHtml(formatDateTime(item.uploadedAt)) + '</td>' +
+            '<td>' + escapeHtml(item.remarks || '—') + '</td></tr>';
+        });
+        html += '</tbody></table></div>';
+      } else {
+        html += '<div class="document-log-panel"><div class="document-log-empty">No upload history for this document yet.</div></div>';
+      }
+      html += '</td></tr>';
+    });
+    html += '</tbody></table>';
+    el.innerHTML = html;
+  }
+
+  function renderReadiness(){
+    var missing=[];var r=readForm();if(!r.projectName)missing.push('Project Name');if(!r.plotNumber)missing.push('Plot Number');if(!r.buyers.length)missing.push('Buyer details');
+    r.buyers.forEach(function(b,i){
+      if(!b.name)missing.push('Buyer '+(i+1)+' name');
+      if(!b.aadhaarNumber)missing.push('Buyer '+(i+1)+' Aadhaar number');
+      if(!b.panNumber)missing.push('Buyer '+(i+1)+' PAN number');
+      if(!currentUploads.some(function(u){return u.documentName==='Buyer '+(i+1)+' - Aadhaar';}))missing.push('Buyer '+(i+1)+' Aadhaar file');
+      if(!currentUploads.some(function(u){return u.documentName==='Buyer '+(i+1)+' - PAN';}))missing.push('Buyer '+(i+1)+' PAN file');
+    });
+    if (!currentUploads.some(function(u){ return isEcDocumentName(u.documentName); })) missing.push('At least one Certified EC document');
+    documentCategories.forEach(function(d){if(!currentUploads.some(function(u){return u.documentName===d;}))missing.push(d);});
+    if (!currentUploads.some(function(u){ return isPattaDocumentName(u.documentName); })) missing.push('At least one Patta document');
+    var buyerChecks=r.buyers.length?r.buyers.length*5:1;
+    var total=2+buyerChecks+1+documentCategories.length+1;
+    var completed=Math.max(0,total-missing.length);
+    var percent=Math.round((completed/total)*100);
+    document.getElementById('readinessBox').innerHTML='<strong>Readiness: '+percent+'% ('+completed+'/'+total+' checks complete)</strong><br>'+(missing.length?'Items to complete: '+escapeHtml(missing.join(', ')):'Plot, buyer and required document checks are complete.');
+  }
+
+  function toggleAdminPanel(){document.getElementById('adminPanel').classList.toggle('hidden');if(!document.getElementById('adminPanel').classList.contains('hidden'))loadEmployees();}
+  function createEmployeeUi(){
+    var id=document.getElementById('newEmployeeId').value.trim();
+    var name=document.getElementById('newEmployeeName').value.trim();
+    var pwd=document.getElementById('newEmployeePassword').value;
+    var confirm=document.getElementById('newEmployeePasswordConfirm').value;
+    if(!id||!name){showToast('Enter Employee ID and Employee Name.',true);return;}
+    if(pwd.length<10){showToast('Temporary password must contain at least 10 characters.',true);return;}
+    if(pwd!==confirm){showToast('Temporary passwords do not match.',true);return;}
+    google.script.run.withSuccessHandler(function(res){
+      showToast(res.message||'Employee created.');
+      setVal('newEmployeeId','');setVal('newEmployeeName','');setVal('newEmployeePassword','');setVal('newEmployeePasswordConfirm','');loadEmployees();
+    }).withFailureHandler(function(err){showToast('Could not create employee: '+errorText(err),true);}).createEmployee(sessionToken,id,name,pwd);
+  }
+  function loadEmployees(){
+    google.script.run.withSuccessHandler(function(items){
+      var el=document.getElementById('employeeList');
+      if(!items||!items.length){el.innerHTML='<div class="empty">No employee accounts found.</div>';return;}
+      var html='<table style="min-width:700px"><thead><tr><th>Employee ID</th><th>Name</th><th>Role</th><th>Status</th><th>Password</th><th>Action</th></tr></thead><tbody>';
+      items.forEach(function(e){
+        var action=e.employeeId.toLowerCase()===currentUser.employeeId.toLowerCase()?'Current user':'<button class="btn secondary small" onclick="toggleEmployee(\''+jsQuote(e.employeeId)+'\','+(!e.active)+')">'+(e.active?'Deactivate':'Activate')+'</button>';
+        if(e.role!=='Admin') action+=' <button class="btn secondary small" onclick="resetPasswordUi(\''+jsQuote(e.employeeId)+'\')">Reset Password</button>';
+        var passwordState=!e.passwordSet?'Not set':(e.mustChangePassword?'Change required':'Set');
+        html+='<tr><td>'+escapeHtml(e.employeeId)+'</td><td>'+escapeHtml(e.name)+'</td><td>'+escapeHtml(e.role)+'</td><td>'+(e.active?'Active':'Inactive')+'</td><td>'+escapeHtml(passwordState)+'</td><td>'+action+'</td></tr>';
+      });
+      el.innerHTML=html+'</tbody></table>';
+    }).withFailureHandler(function(err){document.getElementById('employeeList').innerHTML='<div class="statusline error">'+escapeHtml(errorText(err))+'</div>';}).getEmployees(sessionToken);
+  }
+  function toggleEmployee(id,active){google.script.run.withSuccessHandler(function(){showToast('Employee status updated.');loadEmployees();}).withFailureHandler(function(err){showToast(errorText(err),true);}).setEmployeeActive(sessionToken,id,active);}
+  function resetPasswordUi(id){
+    var pwd=window.prompt('Set a temporary password of at least 10 characters for '+id+':');
+    if(pwd===null)return;
+    if(pwd.length<10){showToast('Password must contain at least 10 characters.',true);return;}
+    google.script.run.withSuccessHandler(function(res){showToast(res.message||'Temporary password set.');loadEmployees();}).withFailureHandler(function(err){showToast('Password reset failed: '+errorText(err),true);}).resetEmployeePassword(sessionToken,id,pwd);
+  }
+  function changeMyPassword(){
+    var current=window.prompt('Enter your current password:');if(current===null)return;
+    var next=window.prompt('Enter your new password (minimum 10 characters):');if(next===null)return;
+    if(next.length<10){showToast('New password must contain at least 10 characters.',true);return;}
+    google.script.run.withSuccessHandler(function(res){showToast(res.message||'Password changed.');}).withFailureHandler(function(err){showToast('Password change failed: '+errorText(err),true);}).changePassword(sessionToken,current,next);
+  }
+
+  function clearFilters(){setVal('searchBox','');setVal('statusFilter','');setDashboardTab('All');}
+  function setDashboardMessage(text,type){var el=document.getElementById('dashboardMessage');el.textContent=text;el.className='statusline'+(type?' '+type:'');el.classList.remove('hidden');}
+  function showToast(message,isError){var el=document.getElementById('toast');el.textContent=message;el.className='toast'+(isError?' error':'');el.classList.remove('hidden');window.clearTimeout(showToast.timer);showToast.timer=window.setTimeout(function(){el.classList.add('hidden');},5000);}
+  function errorText(err){return err&&err.message?err.message:String(err||'Unknown error');}
+  function setVal(id,value){var el=document.getElementById(id);if(el)el.value=value==null?'':value;}
+  function addDate(value,days){if(!value)return '';var d=new Date(value+'T00:00:00');if(isNaN(d.getTime()))return '';d.setDate(d.getDate()+days);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function formatDate(value){if(!value)return '—';var d=new Date(value);if(isNaN(d.getTime()))return String(value);return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+  function formatDateTime(value){if(!value)return '—';var d=new Date(value);if(isNaN(d.getTime()))return String(value);return d.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+  function money(value){return '₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:0});}
+  function sumPayments(payments){return (payments||[]).reduce(function(s,p){return s+Number(p.amount||0);},0);}
+  function statusPill(status){var cls=status==='Registered / Completed'?'good':(status==='Documentation Pending'||status==='On Hold'?'warn':'');return '<span class="pill '+cls+'">'+escapeHtml(status||'Booking Received')+'</span>';}
+  function escapeHtml(value){return String(value==null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function escapeAttr(value){return escapeHtml(value).replace(/`/g,'&#96;');}
+  function jsQuote(value){return String(value||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+</script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function (error) {
+        console.warn('PlotReg service worker registration failed:', error);
+      });
+    });
+  }
+</script>
+<!-- PlotReg standalone PWA: secure API client replaces Apps Script iframe/google.script.run transport. -->
 </body>
 </html>
